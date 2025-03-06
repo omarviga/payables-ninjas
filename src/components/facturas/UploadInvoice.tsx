@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UploadCloud, FileText, FilePlus2, FileWarning } from "lucide-react";
+import { UploadCloud, FileText, FilePlus2, FileWarning, Receipt } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 export function UploadInvoice() {
   const { toast } = useToast();
@@ -14,6 +15,7 @@ export function UploadInvoice() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [cfdiTypes, setCfdiTypes] = useState<Record<string, string>>({});
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -43,23 +45,49 @@ export function UploadInvoice() {
     // Filtrar solo archivos XML y PDF
     const validFiles = newFiles.filter(file => 
       file.type === 'application/xml' || 
-      file.type === 'application/pdf' || 
-      file.name.endsWith('.xml')
+      file.type === 'text/xml' ||
+      file.name.endsWith('.xml') ||
+      file.type === 'application/pdf'
     );
     
     if (validFiles.length !== newFiles.length) {
       toast({
         title: "Formato no válido",
-        description: "Solo se permiten archivos XML y PDF.",
+        description: "Solo se permiten archivos XML (CFDI) y PDF.",
         variant: "destructive"
       });
     }
     
+    // Detectar tipo de CFDI para los archivos XML
+    const updatedCfdiTypes = { ...cfdiTypes };
+    
+    validFiles.forEach(file => {
+      if (file.name.endsWith('.xml')) {
+        // Simulación de detección de tipo de CFDI
+        if (file.name.toLowerCase().includes('pago')) {
+          updatedCfdiTypes[file.name] = 'complemento-pago';
+        } else if (file.name.toLowerCase().includes('nota')) {
+          updatedCfdiTypes[file.name] = 'nota-credito';
+        } else {
+          updatedCfdiTypes[file.name] = 'factura';
+        }
+      }
+    });
+    
+    setCfdiTypes(updatedCfdiTypes);
     setFiles(prev => [...prev, ...validFiles]);
   };
 
   const removeFile = (index: number) => {
+    const fileToRemove = files[index];
     setFiles(prev => prev.filter((_, i) => i !== index));
+    
+    // Eliminar el tipo de CFDI si existe
+    if (fileToRemove && fileToRemove.name in cfdiTypes) {
+      const updatedTypes = { ...cfdiTypes };
+      delete updatedTypes[fileToRemove.name];
+      setCfdiTypes(updatedTypes);
+    }
   };
 
   const uploadFiles = () => {
@@ -84,11 +112,12 @@ export function UploadInvoice() {
           
           toast({
             title: "Carga completada",
-            description: `Se han procesado ${files.length} facturas correctamente.`
+            description: `Se han procesado ${files.length} CFDIs correctamente.`
           });
           
           // Limpiar archivos después de la carga
           setFiles([]);
+          setCfdiTypes({});
           return 0;
         }
         return prev + 10;
@@ -97,15 +126,51 @@ export function UploadInvoice() {
   };
 
   const fileIcon = (fileName: string) => {
-    return fileName.endsWith('.xml') ? 
-      <FileText className="h-8 w-8 text-payables-600" /> : 
-      <FilePlus2 className="h-8 w-8 text-success" />;
+    if (fileName.endsWith('.xml')) {
+      const type = cfdiTypes[fileName] || 'factura';
+      
+      switch (type) {
+        case 'complemento-pago':
+          return <Receipt className="h-8 w-8 text-blue-600" />;
+        case 'nota-credito':
+          return <FilePlus2 className="h-8 w-8 text-purple-600" />;
+        default:
+          return <FileText className="h-8 w-8 text-payables-600" />;
+      }
+    } else {
+      return <FilePlus2 className="h-8 w-8 text-success" />;
+    }
+  };
+
+  const getCfdiTypeLabel = (fileName: string) => {
+    if (!fileName.endsWith('.xml')) return null;
+    
+    const type = cfdiTypes[fileName] || 'factura';
+    let label = 'Factura';
+    let className = 'bg-payables-600 text-white';
+    
+    switch (type) {
+      case 'complemento-pago':
+        label = 'Complemento de Pago';
+        className = 'bg-blue-600 text-white';
+        break;
+      case 'nota-credito':
+        label = 'Nota de Crédito';
+        className = 'bg-purple-600 text-white';
+        break;
+    }
+    
+    return (
+      <Badge className={className + " ml-2 text-[10px]"}>
+        {label}
+      </Badge>
+    );
   };
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-xl">Cargar Facturas</CardTitle>
+        <CardTitle className="text-xl">Cargar Facturas (CFDI)</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="upload">
@@ -140,18 +205,24 @@ export function UploadInvoice() {
                 o <span className="text-primary font-medium">haz clic para seleccionar</span>
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Se admiten archivos XML y PDF (CFDI y representación impresa)
+                Se admiten CFDIs en XML y representaciones impresas en PDF
+              </p>
+              <p className="text-xs text-muted-foreground">
+                (Facturas, Complementos de Pago, Notas de Crédito, etc.)
               </p>
             </div>
             
             {files.length > 0 && (
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium">Archivos seleccionados ({files.length})</h3>
+                  <h3 className="text-sm font-medium">CFDIs seleccionados ({files.length})</h3>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => setFiles([])}
+                    onClick={() => {
+                      setFiles([]);
+                      setCfdiTypes({});
+                    }}
                     disabled={uploading}
                   >
                     Limpiar
@@ -167,7 +238,10 @@ export function UploadInvoice() {
                       <div className="flex items-center space-x-3">
                         {fileIcon(file.name)}
                         <div>
-                          <p className="text-sm font-medium line-clamp-1">{file.name}</p>
+                          <div className="flex items-center">
+                            <p className="text-sm font-medium line-clamp-1">{file.name}</p>
+                            {getCfdiTypeLabel(file.name)}
+                          </div>
                           <p className="text-xs text-muted-foreground">
                             {(file.size / 1024).toFixed(1)} KB
                           </p>
@@ -188,7 +262,7 @@ export function UploadInvoice() {
                 {uploading && (
                   <div className="mt-4 space-y-2">
                     <div className="flex justify-between text-xs">
-                      <span>Procesando facturas...</span>
+                      <span>Procesando CFDIs...</span>
                       <span>{progress}%</span>
                     </div>
                     <Progress value={progress} />
@@ -201,7 +275,7 @@ export function UploadInvoice() {
                     disabled={uploading || files.length === 0}
                     className="bg-payables-600 hover:bg-payables-700"
                   >
-                    {uploading ? 'Procesando...' : 'Procesar Facturas'}
+                    {uploading ? 'Procesando...' : 'Procesar CFDIs'}
                   </Button>
                 </div>
               </div>
@@ -213,7 +287,7 @@ export function UploadInvoice() {
               <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
               <h3 className="mt-4 text-lg font-medium">Descarga Automática del SAT</h3>
               <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-                Configura tus credenciales del SAT para automatizar la descarga de facturas emitidas y recibidas.
+                Configura tus credenciales del SAT para automatizar la descarga de CFDIs emitidos y recibidos, incluyendo complementos de pago.
               </p>
               <Button 
                 className="mt-6 bg-payables-600 hover:bg-payables-700"
