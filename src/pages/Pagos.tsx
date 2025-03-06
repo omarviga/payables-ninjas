@@ -1,4 +1,3 @@
-
 import MainLayout from '@/components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +11,6 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Datos de ejemplo para pagos
 const payments = [
   {
     id: '1',
@@ -132,9 +130,11 @@ const Pagos = () => {
               <TableCell>{payment.date}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <payment.type === 'incoming' ? typeMap.incoming.icon : typeMap.outgoing.icon 
-                    className={`h-4 w-4 ${payment.type === 'incoming' ? 'text-success' : 'text-danger'}`} 
-                  />
+                  {payment.type === 'incoming' ? (
+                    <ArrowDownLeft className="h-4 w-4 text-success" />
+                  ) : (
+                    <ArrowUpRight className="h-4 w-4 text-danger" />
+                  )}
                   <span>{payment.type === 'incoming' ? 'Ingreso' : 'Egreso'}</span>
                 </div>
               </TableCell>
