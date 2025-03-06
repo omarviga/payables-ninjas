@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,12 +62,33 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Colores personalizados de la aplicación
+				payables: {
+					'50': '#f0f7fe',
+					'100': '#dcedfd',
+					'200': '#c2e0fc',
+					'300': '#96ccf9',
+					'400': '#64b0f5',
+					'500': '#4293ed',
+					'600': '#2c74b3', // Color principal
+					'700': '#205295', // Color secundario
+					'800': '#144272', // Color oscuro
+					'900': '#0A2647', // Color muy oscuro
+					'950': '#072035'
+				},
+				success: '#38A3A5',
+				warning: '#FFB72B',
+				danger: '#EB5353'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				sans: ['Inter', 'sans-serif'],
+				heading: ['Poppins', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
