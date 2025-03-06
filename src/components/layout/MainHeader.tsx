@@ -5,7 +5,7 @@ import {
   Search, 
   Moon, 
   Sun,
-  SidebarTrigger as SidebarIcon
+  PanelLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,7 @@ export function MainHeader() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <SidebarTrigger>
-            <SidebarIcon className="h-5 w-5" />
+            <PanelLeft className="h-5 w-5" />
           </SidebarTrigger>
           <div className="relative max-w-md hidden md:block">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
