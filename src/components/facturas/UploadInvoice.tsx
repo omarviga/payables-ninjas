@@ -48,7 +48,10 @@ export function UploadInvoice() {
           </TabsContent>
           
           <TabsContent value="sat">
-            <SatDownloadTab onConfigureConnection={configureConnection} />
+            <SatDownloadTab 
+              onConfigureConnection={configureConnection}
+              onNavigateToInvoices={navigateToInvoices} 
+            />
           </TabsContent>
         </Tabs>
       </CardContent>
