@@ -20,18 +20,21 @@ export interface Invoice {
 // Caché local de facturas (para rendimiento y funcionamiento offline)
 let invoices: Invoice[] = [];
 
-// Inicializar las facturas desde Supabase
+// Inicializar las facturas desde Supabase o desde datos de ejemplo
 export const initInvoices = async (): Promise<void> => {
   try {
+    console.log("Intentando cargar facturas desde Supabase...");
     const dbInvoices = await fetchInvoices();
-    if (dbInvoices.length > 0) {
+    
+    if (dbInvoices && dbInvoices.length > 0) {
       invoices = dbInvoices;
       console.log("Facturas cargadas desde Supabase:", invoices.length);
     } else {
       console.log("No se encontraron facturas en Supabase, usando datos de ejemplo");
-      // Mantener las facturas de ejemplo si no hay facturas en la base de datos
+      // Si no hay facturas en la caché local o Supabase, usar datos de ejemplo
       if (invoices.length === 0) {
         invoices = getExampleInvoices();
+        console.log("Facturas de ejemplo cargadas:", invoices.length);
       }
     }
   } catch (error) {
@@ -39,6 +42,7 @@ export const initInvoices = async (): Promise<void> => {
     // Usar facturas de ejemplo en caso de error
     if (invoices.length === 0) {
       invoices = getExampleInvoices();
+      console.log("Error al cargar desde Supabase, usando datos de ejemplo:", invoices.length);
     }
   }
 };
@@ -174,5 +178,6 @@ export const updateInvoiceStatus = async (invoiceId: string, status: "paid" | "p
 // Función para obtener todas las facturas
 export const getAllInvoices = (): Invoice[] => {
   console.log("Obteniendo todas las facturas, cantidad:", invoices.length);
-  return [...invoices];
+  // Aseguramos que siempre devolvemos un array (incluso vacío), nunca undefined
+  return Array.isArray(invoices) ? [...invoices] : [];
 };

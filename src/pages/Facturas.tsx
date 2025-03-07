@@ -13,20 +13,25 @@ const Facturas = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [invoicesList, setInvoicesList] = useState<Invoice[]>([]);
-  const [loading, setLoading] = useState(true); // Cambio aquí: iniciar con loading=true
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
+  const [error, setError] = useState<string | null>(null);
 
   // Cargar todas las facturas al montar el componente
   useEffect(() => {
     const loadInvoices = async () => {
       setLoading(true);
+      setError(null);
+      
       try {
+        console.log("Iniciando carga de facturas...");
         await initInvoices();
         const invoices = getAllInvoices();
-        console.log("Facturas: Cargando facturas, cantidad:", invoices.length);
+        console.log("Facturas cargadas:", invoices.length, invoices);
         setInvoicesList(invoices);
       } catch (error) {
         console.error("Error al cargar facturas:", error);
+        setError("No se pudieron cargar las facturas");
         toast({
           title: "Error al cargar facturas",
           description: "No se pudieron cargar las facturas. Intenta de nuevo más tarde.",
@@ -171,29 +176,33 @@ const Facturas = () => {
             <div className="h-3 bg-slate-200 rounded w-24"></div>
           </div>
         </div>
+      ) : error ? (
+        <div className="text-center py-12 border rounded-lg bg-red-50">
+          <FileText className="w-12 h-12 mx-auto text-red-400" />
+          <h3 className="mt-4 text-lg font-medium text-red-500">Error al cargar facturas</h3>
+          <p className="mt-2 text-sm text-red-500 max-w-md mx-auto">
+            {error}. Por favor intenta nuevamente más tarde o contacta a soporte.
+          </p>
+        </div>
+      ) : invoicesList.length === 0 ? (
+        <div className="text-center py-12 border rounded-lg bg-gray-50">
+          <FileText className="w-12 h-12 mx-auto text-muted-foreground" />
+          <h3 className="mt-4 text-lg font-medium">No hay facturas disponibles</h3>
+          <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+            Utiliza el botón "Cargar Facturas" para subir tus primeros CFDIs o configura la conexión con el SAT.
+          </p>
+        </div>
       ) : (
-        <>
-          {invoicesList && invoicesList.length > 0 ? (
-            <InvoiceTabs 
-              allInvoices={invoicesList}
-              receiveInvoices={receiveInvoices}
-              payableInvoices={payableInvoices}
-              overdueInvoices={overdueInvoices}
-              onViewInvoice={handleViewInvoice}
-              onDownloadInvoice={handleDownloadInvoice}
-              onMarkAsPaid={handleMarkAsPaid}
-              onTabChange={handleTabChange}
-            />
-          ) : (
-            <div className="text-center py-12 border rounded-lg bg-gray-50">
-              <FileText className="w-12 h-12 mx-auto text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-medium">No hay facturas disponibles</h3>
-              <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-                Utiliza el botón "Cargar Facturas" para subir tus primeros CFDIs o configura la conexión con el SAT.
-              </p>
-            </div>
-          )}
-        </>
+        <InvoiceTabs 
+          allInvoices={invoicesList}
+          receiveInvoices={receiveInvoices}
+          payableInvoices={payableInvoices}
+          overdueInvoices={overdueInvoices}
+          onViewInvoice={handleViewInvoice}
+          onDownloadInvoice={handleDownloadInvoice}
+          onMarkAsPaid={handleMarkAsPaid}
+          onTabChange={handleTabChange}
+        />
       )}
     </div>
   );
