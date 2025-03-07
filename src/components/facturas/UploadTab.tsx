@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -9,7 +8,7 @@ import { FileList } from './FileList';
 import { DropZone } from './DropZone';
 import { ProcessedInvoices } from './ProcessedInvoices';
 import { useUploadFiles } from '@/hooks/use-upload-files';
-import { InfoCircle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface UploadTabProps {
   onNavigateToInvoices: () => void;
@@ -86,7 +85,7 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
       toast({
         title: "Facturas duplicadas",
         description: `Todas las facturas seleccionadas (${result.duplicateCount}) ya existen en el sistema.`,
-        variant: "warning"
+        variant: "destructive"
       });
     } else {
       console.warn("No se encontraron XMLs válidos para procesar o el proceso falló");
@@ -170,7 +169,7 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
       
       {duplicateCount > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mt-4 flex items-start">
-          <InfoCircle className="text-amber-500 h-5 w-5 mt-0.5 mr-2 flex-shrink-0" />
+          <AlertTriangle className="text-amber-500 h-5 w-5 mt-0.5 mr-2 flex-shrink-0" />
           <div>
             <h4 className="font-medium text-amber-700">Facturas duplicadas</h4>
             <p className="text-sm text-amber-600">

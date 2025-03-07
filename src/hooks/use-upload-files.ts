@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Invoice } from '@/data/invoices';
@@ -52,7 +51,6 @@ export function useUploadFiles() {
       return;
     }
     
-    // Filtrar solo archivos XML y PDF usando la función mejorada
     const validFiles = filterValidFiles(newFiles);
     console.log(`Archivos validados (${validFiles.length}):`, validFiles.map(f => `${f.name} (${f.type})`));
     
@@ -78,7 +76,6 @@ export function useUploadFiles() {
       return;
     }
     
-    // Detectar tipo de CFDI para los archivos XML
     const updatedCfdiTypes = { ...cfdiTypes };
     let xmlCount = 0;
     
@@ -94,7 +91,6 @@ export function useUploadFiles() {
     setCfdiTypes(updatedCfdiTypes);
     setFiles(prev => [...prev, ...validFiles]);
     
-    // Mostrar mensaje de éxito
     toast({
       title: "Archivos seleccionados",
       description: `Se han añadido ${validFiles.length} archivos a la lista (${xmlCount} XML).`
@@ -112,7 +108,6 @@ export function useUploadFiles() {
     const fileToRemove = files[index];
     setFiles(prev => prev.filter((_, i) => i !== index));
     
-    // Eliminar el tipo de CFDI si existe
     if (fileToRemove && fileToRemove.name in cfdiTypes) {
       const updatedTypes = { ...cfdiTypes };
       delete updatedTypes[fileToRemove.name];
@@ -139,7 +134,6 @@ export function useUploadFiles() {
       setProcessedInvoices([]);
       setDuplicateCount(0);
       
-      // Procesar solo archivos XML
       const xmlFiles = files.filter(file => {
         if (!file) return false;
         const isXml = isXmlFile(file);
@@ -164,7 +158,6 @@ export function useUploadFiles() {
       let processed = 0;
       let duplicates = 0;
       
-      // Procesar cada archivo XML
       for (const file of xmlFiles) {
         try {
           console.log(`Procesando archivo XML: ${file.name}`);
@@ -196,7 +189,7 @@ export function useUploadFiles() {
         toast({
           title: `${duplicates} facturas duplicadas`,
           description: `Se encontraron ${duplicates} facturas que ya existen en el sistema y no se procesaron nuevamente.`,
-          variant: "warning"
+          variant: "destructive"
         });
       }
       
