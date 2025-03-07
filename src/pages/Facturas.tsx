@@ -1,17 +1,23 @@
 
-import { useState } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
-import { useToast } from '@/components/ui/use-toast';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import { FacturasHeader } from '@/components/facturas/FacturasHeader';
 import { FacturasFilterBar } from '@/components/facturas/FacturasFilterBar';
 import { InvoiceTabs } from '@/components/facturas/InvoiceTabs';
-import { invoices as initialInvoices } from '@/data/invoices';
+import { getAllInvoices } from '@/data/invoices';
 import type { Invoice } from '@/components/facturas/InvoiceTable';
 
 const Facturas = () => {
   const { toast } = useToast();
-  const [invoicesList, setInvoicesList] = useState<Invoice[]>(initialInvoices);
+  const [invoicesList, setInvoicesList] = useState<Invoice[]>([]);
   const [activeTab, setActiveTab] = useState('all');
+
+  // Cargar facturas al iniciar
+  useEffect(() => {
+    // Obtener las facturas del sistema
+    const invoices = getAllInvoices();
+    setInvoicesList(invoices);
+  }, []);
 
   const receiveInvoices = invoicesList.filter(inv => inv.type === 'receivable');
   const payableInvoices = invoicesList.filter(inv => inv.type === 'payable');
@@ -20,11 +26,12 @@ const Facturas = () => {
   const handleFilter = (searchQuery: string) => {
     // Filtrar facturas basado en la búsqueda
     if (!searchQuery.trim()) {
-      setInvoicesList(initialInvoices);
+      setInvoicesList(getAllInvoices());
       return;
     }
 
-    const filtered = initialInvoices.filter(inv => 
+    const allInvoices = getAllInvoices();
+    const filtered = allInvoices.filter(inv => 
       inv.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       inv.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
       inv.amount.toString().includes(searchQuery)
@@ -39,7 +46,7 @@ const Facturas = () => {
   };
 
   const handleResetFilter = () => {
-    setInvoicesList(initialInvoices);
+    setInvoicesList(getAllInvoices());
   };
 
   const handleMarkAsPaid = (invoiceId: string) => {
@@ -91,28 +98,36 @@ const Facturas = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="flex flex-col gap-6">
-        <FacturasHeader />
-        
-        <FacturasFilterBar 
-          onFilter={handleFilter}
-          onResetFilter={handleResetFilter}
-          onExport={handleExportInvoices}
-        />
-        
-        <InvoiceTabs 
-          allInvoices={invoicesList}
-          receiveInvoices={receiveInvoices}
-          payableInvoices={payableInvoices}
-          overdueInvoices={overdueInvoices}
-          onViewInvoice={handleViewInvoice}
-          onDownloadInvoice={handleDownloadInvoice}
-          onMarkAsPaid={handleMarkAsPaid}
-          onTabChange={handleTabChange}
-        />
-      </div>
-    </MainLayout>
+    <div className="flex flex-col gap-6">
+      <FacturasHeader />
+      
+      <FacturasFilterBar 
+        onFilter={handleFilter}
+        onResetFilter={handleResetFilter}
+        onExport={handleExportInvoices}
+      />
+      
+      <InvoiceTabs 
+        allInvoices={invoicesList}
+        receiveInvoices={receiveInvoices}
+        payableInvoices={payableInvoices}
+        overdueInvoices={overdueInvoices}
+        onViewInvoice={handleViewInvoice}
+        onDownloadInvoice={handleDownloadInvoice}
+        onMarkAsPaid={handleMarkAsPaid}
+        onTabChange={handleTabChange}
+      />
+      
+      {invoicesList.length === 0 && (
+        <div className="text-center py-12 border rounded-lg bg-gray-50">
+          <FileText className="w-12 h-12 mx-auto text-muted-foreground" />
+          <h3 className="mt-4 text-lg font-medium">No hay facturas disponibles</h3>
+          <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+            Utiliza el botón "Cargar Facturas" para subir tus primeros CFDIs o configura la conexión con el SAT.
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 

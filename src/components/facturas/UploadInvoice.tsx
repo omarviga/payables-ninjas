@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UploadCloud, FileText, FilePlus2, FileWarning, Receipt } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from 'react-router-dom';
+import { addInvoices } from '@/data/invoices';
+import type { Invoice } from '@/data/invoices';
 
 export function UploadInvoice() {
   const { toast } = useToast();
@@ -19,6 +20,7 @@ export function UploadInvoice() {
   const [progress, setProgress] = useState(0);
   const [cfdiTypes, setCfdiTypes] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('upload');
+  const [processedInvoices, setProcessedInvoices] = useState<Invoice[]>([]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -66,10 +68,10 @@ export function UploadInvoice() {
     
     validFiles.forEach(file => {
       if (file.name.endsWith('.xml')) {
-        // Simulación de detección de tipo de CFDI
+        // Detectar tipo de CFDI basado en el nombre del archivo
         if (file.name.toLowerCase().includes('pago')) {
           updatedCfdiTypes[file.name] = 'complemento-pago';
-        } else if (file.name.toLowerCase().includes('nota')) {
+        } else if (file.name.toLowerCase().includes('nota') || file.name.toLowerCase().includes('credito')) {
           updatedCfdiTypes[file.name] = 'nota-credito';
         } else {
           updatedCfdiTypes[file.name] = 'factura';
@@ -93,7 +95,60 @@ export function UploadInvoice() {
     }
   };
 
-  const uploadFiles = () => {
+  // Función para procesar un archivo XML y extraer datos de factura
+  const processXmlFile = (file: File): Promise<Invoice> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const xmlContent = e.target?.result as string;
+        // Aquí normalmente se implementaría un parser XML para extraer datos
+        // Para esta demostración, generamos datos simulados basados en el nombre del archivo
+        
+        const type = file.name.toLowerCase().includes('prov') ? 'payable' : 'receivable';
+        const status = Math.random() > 0.7 ? 'pending' : 'paid';
+        const amount = Math.floor(Math.random() * 10000) + 1000;
+        const today = new Date();
+        const dueDate = new Date();
+        dueDate.setDate(today.getDate() + 30);
+        
+        const formatDate = (date: Date) => {
+          return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        };
+        
+        const invoice: Invoice = {
+          id: `xml-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          number: `CFDI-${Math.floor(Math.random() * 10000)}`,
+          client: file.name.split('.')[0].replace(/-/g, ' ').replace(/_/g, ' '),
+          amount: amount,
+          date: formatDate(today),
+          dueDate: formatDate(dueDate),
+          status: status,
+          type: type
+        };
+        
+        resolve(invoice);
+      };
+      
+      reader.onerror = () => {
+        // En caso de error, devolver una factura con datos genéricos
+        resolve({
+          id: `error-${Date.now()}`,
+          number: `Error-${file.name}`,
+          client: 'Error al procesar',
+          amount: 0,
+          date: new Date().toLocaleDateString('es-MX'),
+          dueDate: new Date().toLocaleDateString('es-MX'),
+          status: 'pending',
+          type: 'receivable'
+        });
+      };
+      
+      reader.readAsText(file);
+    });
+  };
+
+  const uploadFiles = async () => {
     if (files.length === 0) {
       toast({
         title: "Sin archivos",
@@ -105,37 +160,52 @@ export function UploadInvoice() {
     
     setUploading(true);
     setProgress(0);
+    setProcessedInvoices([]);
     
-    // Simulación de carga
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setUploading(false);
-          
-          toast({
-            title: "Carga completada",
-            description: `Se han procesado ${files.length} CFDIs correctamente.`
-          });
-          
-          // Redireccionar después de una carga exitosa
-          setTimeout(() => {
-            navigate('/facturas');
-          }, 1500);
-          
-          // Limpiar archivos después de la carga
-          setFiles([]);
-          setCfdiTypes({});
-          return 0;
-        }
-        return prev + 10;
+    // Procesar solo archivos XML
+    const xmlFiles = files.filter(file => 
+      file.type === 'application/xml' || 
+      file.type === 'text/xml' || 
+      file.name.endsWith('.xml')
+    );
+    
+    const newInvoices: Invoice[] = [];
+    let processed = 0;
+    
+    // Procesar cada archivo XML
+    for (const file of xmlFiles) {
+      const invoice = await processXmlFile(file);
+      newInvoices.push(invoice);
+      
+      processed++;
+      setProgress(Math.floor((processed / xmlFiles.length) * 100));
+    }
+    
+    // Agregar facturas procesadas al sistema
+    if (newInvoices.length > 0) {
+      // Guardar las facturas en el estado global
+      addInvoices(newInvoices);
+      setProcessedInvoices(newInvoices);
+      
+      toast({
+        title: "Carga completada",
+        description: `Se han procesado ${newInvoices.length} CFDIs correctamente.`
       });
-    }, 500);
+    } else {
+      toast({
+        title: "No se encontraron XMLs válidos",
+        description: "Ninguno de los archivos seleccionados contiene datos CFDI válidos.",
+        variant: "destructive"
+      });
+    }
+    
+    setUploading(false);
   };
 
   const handleClearFiles = () => {
     setFiles([]);
     setCfdiTypes({});
+    setProcessedInvoices([]);
     toast({
       title: "Lista de archivos limpiada",
       description: "Se han eliminado todos los archivos seleccionados."
@@ -151,6 +221,10 @@ export function UploadInvoice() {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+  };
+  
+  const navigateToInvoices = () => {
+    navigate('/facturas');
   };
 
   const fileIcon = (fileName: string) => {
@@ -305,6 +379,44 @@ export function UploadInvoice() {
                     className="bg-payables-600 hover:bg-payables-700"
                   >
                     {uploading ? 'Procesando...' : 'Procesar CFDIs'}
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            {/* Mostrar resumen de facturas procesadas */}
+            {processedInvoices.length > 0 && (
+              <div className="mt-6 border rounded-lg p-4">
+                <h3 className="text-lg font-medium mb-3">Facturas procesadas</h3>
+                <div className="space-y-3">
+                  {processedInvoices.map((invoice) => (
+                    <div key={invoice.id} className="p-3 bg-gray-50 rounded-md">
+                      <div className="flex justify-between items-center">
+                        <h4 className="font-medium">{invoice.number}</h4>
+                        <Badge className={invoice.type === 'receivable' ? 'bg-success/20 text-success' : 'bg-blue-600/20 text-blue-600'}>
+                          {invoice.type === 'receivable' ? 'Por Cobrar' : 'Por Pagar'}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Cliente:</span> {invoice.client}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Monto:</span> ${invoice.amount.toLocaleString('es-MX')}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Fecha:</span> {invoice.date}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Vencimiento:</span> {invoice.dueDate}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <Button onClick={navigateToInvoices} className="bg-payables-600 hover:bg-payables-700">
+                    Ver todas las facturas
                   </Button>
                 </div>
               </div>
