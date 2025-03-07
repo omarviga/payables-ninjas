@@ -6,10 +6,10 @@ export function TotalPayableCard() {
   return (
     <StatsCard
       title="Total por Pagar"
-      value="$21,700"
+      value="$0"
       description="Facturas pendientes de pago"
       icon={FileText}
-      trend={-2.3}
+      trend={0}
       trendLabel="vs. mes anterior"
       iconClassName="bg-danger/10 text-danger"
     />

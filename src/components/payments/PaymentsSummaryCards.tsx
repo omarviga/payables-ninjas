@@ -23,7 +23,7 @@ export const PaymentsSummaryCards = ({
         <CardContent>
           <div className="text-2xl font-bold">${totalIncoming.toLocaleString('es-MX')}</div>
           <p className="text-xs text-muted-foreground">
-            +15% respecto al mes anterior
+            Sin datos para comparar
           </p>
         </CardContent>
       </Card>
@@ -35,7 +35,7 @@ export const PaymentsSummaryCards = ({
         <CardContent>
           <div className="text-2xl font-bold">${totalOutgoing.toLocaleString('es-MX')}</div>
           <p className="text-xs text-muted-foreground">
-            +5% respecto al mes anterior
+            Sin datos para comparar
           </p>
         </CardContent>
       </Card>

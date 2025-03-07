@@ -11,19 +11,20 @@ import {
   ResponsiveContainer
 } from "recharts";
 
+// Empty data with zero values
 const data = [
-  { name: 'Ene', ingresos: 4000, gastos: 2400, balance: 1600 },
-  { name: 'Feb', ingresos: 3000, gastos: 1398, balance: 1602 },
-  { name: 'Mar', ingresos: 2000, gastos: 1800, balance: 200 },
-  { name: 'Abr', ingresos: 2780, gastos: 3908, balance: -1128 },
-  { name: 'May', ingresos: 1890, gastos: 4800, balance: -2910 },
-  { name: 'Jun', ingresos: 2390, gastos: 3800, balance: -1410 },
-  { name: 'Jul', ingresos: 3490, gastos: 4300, balance: -810 },
-  { name: 'Ago', ingresos: 4000, gastos: 2400, balance: 1600 },
-  { name: 'Sep', ingresos: 3000, gastos: 1398, balance: 1602 },
-  { name: 'Oct', ingresos: 2000, gastos: 1800, balance: 200 },
-  { name: 'Nov', ingresos: 2780, gastos: 1908, balance: 872 },
-  { name: 'Dic', ingresos: 1890, gastos: 800, balance: 1090 }
+  { name: 'Ene', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Feb', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Mar', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Abr', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'May', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Jun', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Jul', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Ago', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Sep', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Oct', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Nov', ingresos: 0, gastos: 0, balance: 0 },
+  { name: 'Dic', ingresos: 0, gastos: 0, balance: 0 }
 ];
 
 export function FinancialMetricsChart() {

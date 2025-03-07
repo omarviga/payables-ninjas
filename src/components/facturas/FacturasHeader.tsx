@@ -1,31 +1,21 @@
 
 import { Button } from '@/components/ui/button';
 import { FileUp, Download } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 interface FacturasHeaderProps {
   onUploadClick?: () => void;
 }
 
 export const FacturasHeader = ({ onUploadClick }: FacturasHeaderProps) => {
-  const { toast } = useToast();
-
   const handleImportInvoices = () => {
     if (onUploadClick) {
       onUploadClick();
-    } else {
-      toast({
-        title: "Importar facturas",
-        description: "Esta funcionalidad permitirá importar facturas desde un archivo CSV.",
-      });
     }
   };
 
   const handleDownloadFromSAT = () => {
-    toast({
-      title: "Conectando con el SAT",
-      description: "Iniciando proceso de descarga de facturas desde el portal del SAT.",
-    });
+    // Esta función se implementará en el futuro
+    console.log("Función para descargar desde el SAT pendiente de implementar");
   };
 
   return (

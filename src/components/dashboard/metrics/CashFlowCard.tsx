@@ -6,10 +6,10 @@ export function CashFlowCard() {
   return (
     <StatsCard
       title="Flujo de Efectivo"
-      value="$17,800"
+      value="$0"
       description="Balance actual"
       icon={ArrowDownUp}
-      trend={1.8}
+      trend={0}
       trendLabel="vs. mes anterior"
       iconClassName="bg-payables-500/10 text-payables-500"
     />

@@ -11,9 +11,9 @@ export function ReportsSummary() {
           <TrendingUp className="h-4 w-4 text-success" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$89,500.00</div>
+          <div className="text-2xl font-bold">$0.00</div>
           <p className="text-xs text-muted-foreground">
-            +12% respecto al periodo anterior
+            Sin datos para comparar
           </p>
         </CardContent>
       </Card>
@@ -23,9 +23,9 @@ export function ReportsSummary() {
           <TrendingDown className="h-4 w-4 text-danger" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$52,700.00</div>
+          <div className="text-2xl font-bold">$0.00</div>
           <p className="text-xs text-muted-foreground">
-            -3% respecto al periodo anterior
+            Sin datos para comparar
           </p>
         </CardContent>
       </Card>
@@ -35,7 +35,7 @@ export function ReportsSummary() {
           <Wallet className="h-4 w-4 text-payables-600" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$36,800.00</div>
+          <div className="text-2xl font-bold">$0.00</div>
           <p className="text-xs text-muted-foreground">
             En el periodo actual
           </p>
@@ -47,9 +47,9 @@ export function ReportsSummary() {
           <FileText className="h-4 w-4 text-payables-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">156</div>
+          <div className="text-2xl font-bold">0</div>
           <p className="text-xs text-muted-foreground">
-            45 por cobrar, 111 por pagar
+            0 por cobrar, 0 por pagar
           </p>
         </CardContent>
       </Card>

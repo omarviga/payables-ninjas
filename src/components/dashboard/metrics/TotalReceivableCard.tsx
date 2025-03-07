@@ -6,10 +6,10 @@ export function TotalReceivableCard() {
   return (
     <StatsCard
       title="Total por Cobrar"
-      value="$39,500"
+      value="$0"
       description="Facturas pendientes de cobro"
       icon={FileText}
-      trend={4.5}
+      trend={0}
       trendLabel="vs. mes anterior"
       iconClassName="bg-success/10 text-success"
     />

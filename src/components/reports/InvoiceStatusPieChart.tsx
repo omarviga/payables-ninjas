@@ -2,14 +2,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
+// Empty data
 const data = [
-  { name: 'Pagadas', value: 45 },
-  { name: 'Pendientes', value: 30 },
-  { name: 'Vencidas', value: 15 },
-  { name: 'Canceladas', value: 10 },
+  { name: 'Sin datos', value: 100 },
 ];
 
-const COLORS = ['#38A3A5', '#FFB302', '#EB5353', '#8B5CF6'];
+const COLORS = ['#e0e0e0'];
 
 export function InvoiceStatusPieChart() {
   return (
@@ -28,13 +26,13 @@ export function InvoiceStatusPieChart() {
               outerRadius={100}
               fill="#8884d8"
               dataKey="value"
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              label={({ name }) => `${name}`}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip formatter={(value) => [`${value} facturas`, 'Cantidad']} />
+            <Tooltip />
             <Legend />
           </PieChart>
         </ResponsiveContainer>

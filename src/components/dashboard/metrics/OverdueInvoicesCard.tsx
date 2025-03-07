@@ -6,10 +6,10 @@ export function OverdueInvoicesCard() {
   return (
     <StatsCard
       title="Facturas Vencidas"
-      value="5"
+      value="0"
       description="Requieren atención inmediata"
       icon={AlertTriangle}
-      trend={-3}
+      trend={0}
       trendLabel="vs. mes anterior"
       iconClassName="bg-warning/10 text-warning"
     />
