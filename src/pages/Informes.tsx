@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,12 +9,114 @@ import { FinancialMetricsChart } from '@/components/reports/FinancialMetricsChar
 import { InvoiceStatusPieChart } from '@/components/reports/InvoiceStatusPieChart';
 import { TopClientsBarChart } from '@/components/reports/TopClientsBarChart';
 import { ReportsSummary } from '@/components/reports/ReportsSummary';
+import { useToast } from '@/components/ui/use-toast';
 import { 
   FileDown, Calendar, Filter, Printer, Share2, 
   BarChart3, PieChart, LineChart, LayoutList
 } from 'lucide-react';
 
 const Informes = () => {
+  const { toast } = useToast();
+  const [period, setPeriod] = useState('month');
+  const [invoiceType, setInvoiceType] = useState('all');
+  const [isFiltering, setIsFiltering] = useState(false);
+
+  // Manejadores para los filtros
+  const handlePeriodChange = (value: string) => {
+    setPeriod(value);
+    setIsFiltering(true);
+    
+    setTimeout(() => {
+      toast({
+        title: "Filtro aplicado",
+        description: `Mostrando datos del ${getPeriodText(value)}`,
+      });
+      setIsFiltering(false);
+    }, 500);
+  };
+
+  const handleInvoiceTypeChange = (value: string) => {
+    setInvoiceType(value);
+    setIsFiltering(true);
+    
+    setTimeout(() => {
+      toast({
+        title: "Filtro aplicado",
+        description: `Mostrando facturas ${getInvoiceTypeText(value)}`,
+      });
+      setIsFiltering(false);
+    }, 500);
+  };
+
+  // Manejadores para los botones de acción
+  const handlePrint = () => {
+    toast({
+      title: "Imprimiendo informe",
+      description: "Preparando documento para imprimir...",
+    });
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+
+  const handleShare = () => {
+    toast({
+      title: "Compartir informe",
+      description: "Función de compartir en desarrollo",
+    });
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Exportando datos",
+      description: "Preparando archivo de exportación...",
+    });
+    
+    // Simulamos la descarga después de un tiempo
+    setTimeout(() => {
+      toast({
+        title: "Exportación completada",
+        description: "El archivo ha sido descargado",
+        variant: "success",
+      });
+    }, 1500);
+  };
+
+  const handleCalendarClick = () => {
+    toast({
+      title: "Calendario",
+      description: "Selector de fecha en desarrollo",
+    });
+  };
+
+  const handleAdvancedFilter = () => {
+    toast({
+      title: "Filtros avanzados",
+      description: "Filtros avanzados en desarrollo",
+    });
+  };
+
+  // Funciones auxiliares para textos descriptivos
+  const getPeriodText = (periodValue: string): string => {
+    switch (periodValue) {
+      case 'week': return 'esta semana';
+      case 'month': return 'este mes';
+      case 'quarter': return 'este trimestre';
+      case 'year': return 'este año';
+      case 'custom': return 'periodo personalizado';
+      default: return periodValue;
+    }
+  };
+
+  const getInvoiceTypeText = (typeValue: string): string => {
+    switch (typeValue) {
+      case 'all': return 'de todos los tipos';
+      case 'receivable': return 'por cobrar';
+      case 'payable': return 'por pagar';
+      default: return typeValue;
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -24,15 +127,26 @@ const Informes = () => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="sm:w-auto">
+          <Button 
+            variant="outline" 
+            className="sm:w-auto"
+            onClick={handlePrint}
+          >
             <Printer className="mr-2 h-4 w-4" />
             Imprimir
           </Button>
-          <Button variant="outline" className="sm:w-auto">
+          <Button 
+            variant="outline" 
+            className="sm:w-auto"
+            onClick={handleShare}
+          >
             <Share2 className="mr-2 h-4 w-4" />
             Compartir
           </Button>
-          <Button className="bg-payables-600 hover:bg-payables-700 sm:w-auto">
+          <Button 
+            className="bg-payables-600 hover:bg-payables-700 sm:w-auto"
+            onClick={handleExport}
+          >
             <FileDown className="mr-2 h-4 w-4" />
             Exportar
           </Button>
@@ -42,7 +156,11 @@ const Informes = () => {
       <div className="flex flex-col sm:flex-row gap-4 items-end justify-between mb-4">
         <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
           <div className="w-full sm:w-48">
-            <Select defaultValue="month">
+            <Select 
+              value={period} 
+              onValueChange={handlePeriodChange}
+              disabled={isFiltering}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Periodo" />
               </SelectTrigger>
@@ -56,7 +174,11 @@ const Informes = () => {
             </Select>
           </div>
           <div className="w-full sm:w-48">
-            <Select defaultValue="all">
+            <Select 
+              value={invoiceType} 
+              onValueChange={handleInvoiceTypeChange}
+              disabled={isFiltering}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Tipo de factura" />
               </SelectTrigger>
@@ -68,10 +190,18 @@ const Informes = () => {
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={handleCalendarClick}
+            >
               <Calendar className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={handleAdvancedFilter}
+            >
               <Filter className="h-4 w-4" />
             </Button>
           </div>

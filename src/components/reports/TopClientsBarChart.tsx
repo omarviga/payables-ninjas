@@ -10,8 +10,14 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-// Empty data
-const data = [];
+// Datos de ejemplo para el gráfico
+const data = [
+  { name: 'Cliente A', value: 120000 },
+  { name: 'Cliente B', value: 85000 },
+  { name: 'Cliente C', value: 72000 },
+  { name: 'Cliente D', value: 63500 },
+  { name: 'Cliente E', value: 42000 },
+];
 
 export function TopClientsBarChart() {
   return (

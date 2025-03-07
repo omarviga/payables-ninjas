@@ -11,20 +11,20 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-// Empty data with zero values
+// Datos de ejemplo con valores
 const data = [
-  { name: 'Ene', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Feb', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Mar', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Abr', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'May', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Jun', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Jul', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Ago', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Sep', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Oct', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Nov', ingresos: 0, gastos: 0, balance: 0 },
-  { name: 'Dic', ingresos: 0, gastos: 0, balance: 0 }
+  { name: 'Ene', ingresos: 120000, gastos: 85000, balance: 35000 },
+  { name: 'Feb', ingresos: 145000, gastos: 90000, balance: 55000 },
+  { name: 'Mar', ingresos: 135000, gastos: 95000, balance: 40000 },
+  { name: 'Abr', ingresos: 158000, gastos: 103000, balance: 55000 },
+  { name: 'May', ingresos: 162000, gastos: 108000, balance: 54000 },
+  { name: 'Jun', ingresos: 175000, gastos: 112000, balance: 63000 },
+  { name: 'Jul', ingresos: 182000, gastos: 118000, balance: 64000 },
+  { name: 'Ago', ingresos: 190000, gastos: 120000, balance: 70000 },
+  { name: 'Sep', ingresos: 188000, gastos: 123000, balance: 65000 },
+  { name: 'Oct', ingresos: 195000, gastos: 125000, balance: 70000 },
+  { name: 'Nov', ingresos: 205000, gastos: 130000, balance: 75000 },
+  { name: 'Dic', ingresos: 220000, gastos: 135000, balance: 85000 }
 ];
 
 export function FinancialMetricsChart() {
@@ -42,7 +42,7 @@ export function FinancialMetricsChart() {
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="name" />
             <YAxis />
-            <Tooltip />
+            <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
             <Legend />
             <Line 
               type="monotone" 
@@ -50,18 +50,21 @@ export function FinancialMetricsChart() {
               stroke="#38A3A5" 
               activeDot={{ r: 8 }} 
               strokeWidth={2}
+              name="Ingresos"
             />
             <Line 
               type="monotone" 
               dataKey="gastos" 
               stroke="#EB5353" 
               strokeWidth={2}
+              name="Gastos"
             />
             <Line 
               type="monotone" 
               dataKey="balance" 
               stroke="#8B5CF6" 
               strokeWidth={2}
+              name="Balance"
             />
           </LineChart>
         </ResponsiveContainer>
