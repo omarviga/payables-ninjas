@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,32 +40,40 @@ export function UploadInvoice() {
     setIsDragging(false);
     
     const droppedFiles = Array.from(e.dataTransfer.files);
+    console.log(`Se soltaron ${droppedFiles.length} archivos en la zona de arrastre`);
     handleFiles(droppedFiles);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
+      console.log(`Se seleccionaron ${selectedFiles.length} archivos mediante el diálogo`);
       handleFiles(selectedFiles);
     }
   };
 
   const handleFiles = (newFiles: File[]) => {
-    console.log("Archivos recibidos:", newFiles.map(f => `${f.name} (${f.type})`));
+    console.log("===== INICIO PROCESAMIENTO DE ARCHIVOS =====");
+    console.log(`Archivos recibidos (${newFiles.length}):`, newFiles.map(f => `${f.name} (${f.type})`));
     
     // Filtrar solo archivos XML y PDF usando la función mejorada
     const validFiles = filterValidFiles(newFiles);
-    console.log("Archivos válidos:", validFiles.map(f => `${f.name} (${f.type})`));
+    console.log(`Archivos validados (${validFiles.length}):`, validFiles.map(f => `${f.name} (${f.type})`));
     
     if (validFiles.length !== newFiles.length) {
+      const rechazados = newFiles.length - validFiles.length;
+      console.log(`Se rechazaron ${rechazados} archivos por no ser XML o PDF válidos`);
+      
       toast({
         title: "Formato no válido",
-        description: "Solo se permiten archivos XML (CFDI) y PDF.",
+        description: `Se ignoraron ${rechazados} archivos. Solo se permiten XML (CFDI) y PDF.`,
         variant: "destructive"
       });
     }
     
     if (validFiles.length === 0) {
+      console.log("No se encontraron archivos válidos para procesar");
+      
       toast({
         title: "Sin archivos válidos",
         description: "Ninguno de los archivos seleccionados es un XML o PDF válido.",
@@ -77,22 +84,27 @@ export function UploadInvoice() {
     
     // Detectar tipo de CFDI para los archivos XML
     const updatedCfdiTypes = { ...cfdiTypes };
+    let xmlCount = 0;
     
     validFiles.forEach(file => {
       if (isXmlFile(file)) {
+        xmlCount++;
         console.log(`Archivo XML detectado: ${file.name}`);
         updatedCfdiTypes[file.name] = detectCfdiType(file.name);
       }
     });
     
+    console.log(`Se encontraron ${xmlCount} archivos XML válidos para procesar`);
     setCfdiTypes(updatedCfdiTypes);
     setFiles(prev => [...prev, ...validFiles]);
     
     // Mostrar mensaje de éxito
     toast({
       title: "Archivos seleccionados",
-      description: `Se han añadido ${validFiles.length} archivos a la lista.`
+      description: `Se han añadido ${validFiles.length} archivos a la lista (${xmlCount} XML).`
     });
+    
+    console.log("===== FIN PROCESAMIENTO DE ARCHIVOS =====");
   };
 
   const removeFile = (index: number) => {
@@ -108,7 +120,9 @@ export function UploadInvoice() {
   };
 
   const uploadFiles = async () => {
-    console.log("Iniciando procesamiento de archivos");
+    console.log("===== INICIO CARGA DE ARCHIVOS =====");
+    console.log(`Iniciando procesamiento de ${files.length} archivos`);
+    
     if (files.length === 0) {
       toast({
         title: "Sin archivos",
@@ -122,12 +136,14 @@ export function UploadInvoice() {
     setProgress(0);
     setProcessedInvoices([]);
     
-    // Procesar solo archivos XML usando la función mejorada
+    // Procesar solo archivos XML
     const xmlFiles = files.filter(file => {
       const isXml = isXmlFile(file);
       console.log(`Validando archivo ${file.name}: ${isXml ? 'Es XML' : 'No es XML'}`);
       return isXml;
     });
+    
+    console.log(`Se encontraron ${xmlFiles.length} archivos XML de ${files.length} totales`);
     
     if (xmlFiles.length === 0) {
       toast({
@@ -146,8 +162,9 @@ export function UploadInvoice() {
     // Procesar cada archivo XML
     for (const file of xmlFiles) {
       try {
-        console.log(`Procesando archivo: ${file.name}`);
+        console.log(`Procesando archivo XML: ${file.name}`);
         const invoice = await processXmlFile(file);
+        console.log(`Factura procesada: ${invoice.number}, Tipo: ${invoice.cfdiType}, Monto: ${invoice.amount}`);
         newInvoices.push(invoice);
         
         processed++;
@@ -184,6 +201,7 @@ export function UploadInvoice() {
     }
     
     setUploading(false);
+    console.log("===== FIN CARGA DE ARCHIVOS =====");
   };
 
   const handleClearFiles = () => {
