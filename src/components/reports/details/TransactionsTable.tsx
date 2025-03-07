@@ -66,10 +66,10 @@ export function TransactionsTable({ filters }: TransactionsTableProps) {
   // Función para obtener el color de la insignia según el estado
   const getBadgeVariant = (status: string) => {
     switch (status) {
-      case 'paid': return 'success';
-      case 'pending': return 'warning';
+      case 'paid': return 'default';
+      case 'pending': return 'secondary';
       case 'overdue': return 'destructive';
-      default: return 'secondary';
+      default: return 'outline';
     }
   };
 
@@ -111,7 +111,7 @@ export function TransactionsTable({ filters }: TransactionsTableProps) {
                   <TableCell>{formatDate(invoice.dueDate)}</TableCell>
                   <TableCell className="text-right">${invoice.amount.toLocaleString()}</TableCell>
                   <TableCell>
-                    <Badge variant={invoice.type === 'receivable' ? 'success' : 'default'}>
+                    <Badge variant={invoice.type === 'receivable' ? 'default' : 'outline'}>
                       {invoice.type === 'receivable' ? 'Por cobrar' : 'Por pagar'}
                     </Badge>
                   </TableCell>

@@ -36,7 +36,7 @@ export function TopCategoriesTable() {
                 <TableCell className="text-right">{category.percentage}%</TableCell>
                 <TableCell className="text-right">
                   <Badge 
-                    variant={category.trend === "up" ? "success" : category.trend === "down" ? "destructive" : "secondary"}
+                    variant={category.trend === "up" ? "default" : category.trend === "down" ? "destructive" : "secondary"}
                   >
                     {category.trend === "up" ? "Subiendo" : category.trend === "down" ? "Bajando" : "Estable"}
                   </Badge>

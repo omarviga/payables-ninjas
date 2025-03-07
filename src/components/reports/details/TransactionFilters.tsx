@@ -53,7 +53,7 @@ export function TransactionFilters({ filters, setFilters }: TransactionFiltersPr
           <div className="space-y-2">
             <Label htmlFor="date-range">Rango de Fechas</Label>
             <DateRangePicker
-              value={filters.dateRange}
+              initialDateRange={filters.dateRange}
               onChange={handleDateRangeChange}
               placeholder="Seleccionar fechas"
             />
