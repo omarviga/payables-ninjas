@@ -1,5 +1,4 @@
-
-import { CfdiType } from '@/services/invoiceProcessor';
+import { CfdiType } from '@/services/types/cfdiTypes';
 
 // Datos para las facturas
 export interface Invoice {
