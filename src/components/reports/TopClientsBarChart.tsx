@@ -9,25 +9,22 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts";
+import { FileWarning } from "lucide-react";
 
-// Datos de ejemplo para el gráfico
-const data = [
-  { name: 'Cliente A', value: 120000 },
-  { name: 'Cliente B', value: 85000 },
-  { name: 'Cliente C', value: 72000 },
-  { name: 'Cliente D', value: 63500 },
-  { name: 'Cliente E', value: 42000 },
-];
+// Empty data array instead of example data
+const data: { name: string; value: number }[] = [];
 
 export function TopClientsBarChart() {
+  const hasData = data.length > 0;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">Principales Clientes</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">
-          {data.length > 0 ? (
+        <div className="h-[300px] w-full flex items-center justify-center">
+          {hasData ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
                 data={data}
@@ -47,7 +44,13 @@ export function TopClientsBarChart() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div>No hay datos disponibles</div>
+            <div className="flex flex-col items-center justify-center text-center space-y-4">
+              <FileWarning className="h-16 w-16 text-muted-foreground" />
+              <h3 className="text-xl font-medium">No hay datos disponibles</h3>
+              <p className="text-muted-foreground max-w-md">
+                Registra clientes y transacciones para visualizar los principales clientes.
+              </p>
+            </div>
           )}
         </div>
       </CardContent>

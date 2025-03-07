@@ -11,9 +11,9 @@ export function ReportsSummary() {
           <TrendingUp className="h-4 w-4 text-success" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$1,850,000.00</div>
+          <div className="text-2xl font-bold">$0.00</div>
           <p className="text-xs text-muted-foreground">
-            <span className="text-success">+8.2%</span> respecto al mes anterior
+            <span className="text-muted-foreground">0%</span> respecto al mes anterior
           </p>
         </CardContent>
       </Card>
@@ -23,9 +23,9 @@ export function ReportsSummary() {
           <TrendingDown className="h-4 w-4 text-danger" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$1,250,000.00</div>
+          <div className="text-2xl font-bold">$0.00</div>
           <p className="text-xs text-muted-foreground">
-            <span className="text-danger">+4.1%</span> respecto al mes anterior
+            <span className="text-muted-foreground">0%</span> respecto al mes anterior
           </p>
         </CardContent>
       </Card>
@@ -35,9 +35,9 @@ export function ReportsSummary() {
           <Wallet className="h-4 w-4 text-payables-600" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$600,000.00</div>
+          <div className="text-2xl font-bold">$0.00</div>
           <p className="text-xs text-muted-foreground">
-            <span className="text-success">+12.5%</span> en el periodo actual
+            <span className="text-muted-foreground">0%</span> en el periodo actual
           </p>
         </CardContent>
       </Card>
@@ -47,9 +47,9 @@ export function ReportsSummary() {
           <FileText className="h-4 w-4 text-payables-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">142</div>
+          <div className="text-2xl font-bold">0</div>
           <p className="text-xs text-muted-foreground">
-            98 por cobrar, 44 por pagar
+            0 por cobrar, 0 por pagar
           </p>
         </CardContent>
       </Card>
