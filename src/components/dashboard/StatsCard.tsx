@@ -1,7 +1,11 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { CardTitle } from "./stats/CardTitle";
+import { CardValue } from "./stats/CardValue";
+import { CardDescription } from "./stats/CardDescription";
+import { CardTrend } from "./stats/CardTrend";
 
 interface StatsCardProps {
   title: string;
@@ -20,7 +24,7 @@ export function StatsCard({
   title,
   value,
   description,
-  icon: Icon,
+  icon,
   trend,
   trendLabel,
   className,
@@ -28,38 +32,22 @@ export function StatsCard({
   valuePrefix,
   valueSuffix,
 }: StatsCardProps) {
-  const renderTrend = () => {
-    if (trend === undefined) return null;
-    
-    const trendColor = trend > 0 ? "text-success" : trend < 0 ? "text-danger" : "text-muted-foreground";
-    const trendSign = trend > 0 ? "+" : "";
-    
-    return (
-      <div className={`flex items-center gap-1 text-xs font-medium ${trendColor}`}>
-        <span>{trendSign}{trend}%</span>
-        {trendLabel && <span className="text-muted-foreground">{trendLabel}</span>}
-      </div>
-    );
-  };
-
   return (
     <Card className={cn("stats-card", className)}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className={cn(
-          "p-2 rounded-full",
-          iconClassName || "bg-primary/10 text-primary"
-        )}>
-          <Icon className="h-4 w-4" />
-        </div>
-      </CardHeader>
+      <CardTitle 
+        title={title} 
+        icon={icon} 
+        iconClassName={iconClassName} 
+      />
       <CardContent>
-        <div className="text-2xl font-bold">
-          {valuePrefix}{value}{valueSuffix}
-        </div>
+        <CardValue 
+          value={value} 
+          valuePrefix={valuePrefix} 
+          valueSuffix={valueSuffix} 
+        />
         <div className="flex items-center justify-between mt-1">
-          {description && <p className="text-xs text-muted-foreground">{description}</p>}
-          {renderTrend()}
+          <CardDescription description={description} />
+          <CardTrend trend={trend} trendLabel={trendLabel} />
         </div>
       </CardContent>
     </Card>
