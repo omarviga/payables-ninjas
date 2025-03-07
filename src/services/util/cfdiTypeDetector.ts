@@ -40,17 +40,46 @@ export const detectCfdiType = (fileName: string): string => {
   }
 };
 
-// Función para determinar si es una factura por pagar o por cobrar
+// Constante para el RFC de la empresa
+const MI_RFC = 'HRA811221Q94';
+
+// Función para determinar si es una factura por pagar o por cobrar basada en el RFC
 export const determineCfdiBusinessType = (metadata: CfdiMetadata, fileName: string): 'receivable' | 'payable' => {
-  // En un caso real, esto se determinaría comparando el RFC del emisor con el de la empresa
+  console.log("Determinando tipo de factura basado en RFC:", {
+    rfcEmisor: metadata.rfcEmisor,
+    rfcReceptor: metadata.rfcReceptor,
+    miRfc: MI_RFC
+  });
+  
+  // Si tenemos los datos de RFC, usamos la nueva lógica basada en RFC
+  if (metadata.rfcEmisor && metadata.rfcReceptor) {
+    // Si el emisor es diferente al RFC de la empresa, es una factura de proveedor (por pagar)
+    if (metadata.rfcEmisor !== MI_RFC) {
+      console.log("Es factura POR PAGAR: emisor diferente a MI_RFC");
+      return 'payable';
+    }
+    
+    // Si el receptor es diferente al RFC de la empresa, es una factura por cobrar
+    if (metadata.rfcReceptor !== MI_RFC) {
+      console.log("Es factura POR COBRAR: receptor diferente a MI_RFC");
+      return 'receivable';
+    }
+    
+    // Si ambos son iguales al RFC de la empresa, es un caso especial (factura interna)
+    // Por defecto, lo consideramos como por pagar para casos especiales
+    console.log("CASO ESPECIAL: Emisor y receptor son iguales a MI_RFC");
+    return 'payable';
+  }
+  
+  // Fallback a la lógica anterior basada en el nombre de archivo
+  console.log("Usando lógica basada en nombre de archivo:", fileName);
+  
+  // Lógica anterior como fallback
   if (metadata.tipoDeComprobante === TipoDeComprobante.INGRESO) {
-    // Si somos el emisor de un CFDI de Ingreso, es por cobrar
     return fileName.toLowerCase().includes('prov') ? 'payable' : 'receivable';
   } else if (metadata.tipoDeComprobante === TipoDeComprobante.EGRESO) {
-    // Si somos el emisor de un CFDI de Egreso, probablemente es una nota de crédito (por pagar)
     return fileName.toLowerCase().includes('prov') ? 'payable' : 'receivable';
   } else if (metadata.tipoDeComprobante === TipoDeComprobante.PAGO) {
-    // Los CFDI de Pago pueden ser por cobrar o por pagar, dependiendo de quién lo emite
     return fileName.toLowerCase().includes('prov') ? 'payable' : 'receivable';
   }
   
