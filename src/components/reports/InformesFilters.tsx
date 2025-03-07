@@ -30,6 +30,7 @@ export function InformesFilters({
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
   const [activeAdvancedFilters, setActiveAdvancedFilters] = useState<AdvancedFilters | null>(null);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Effect to handle filtering state and toast notifications
   useEffect(() => {
@@ -75,6 +76,11 @@ export function InformesFilters({
       setActiveFiltersCount(0);
     }
   }, [activeAdvancedFilters]);
+
+  // Effect to show/hide the date picker based on period selection
+  useEffect(() => {
+    setShowDatePicker(period === 'custom');
+  }, [period]);
 
   // Period change handler
   const handlePeriodChange = (value: string) => {
@@ -188,7 +194,9 @@ export function InformesFilters({
           </Select>
         </div>
         <div className="flex items-center gap-2">
-          <DateRangePicker onChange={handleDateRangeChange} />
+          {showDatePicker && (
+            <DateRangePicker onChange={handleDateRangeChange} />
+          )}
           <div className="relative">
             <Button 
               variant="outline" 
@@ -230,3 +238,4 @@ export function InformesFilters({
     </div>
   );
 }
+

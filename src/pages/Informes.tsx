@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { InformesHeader } from '@/components/reports/InformesHeader';
 import { InformesFilters } from '@/components/reports/InformesFilters';
 import { ReportsSummary } from '@/components/reports/ReportsSummary';
@@ -14,9 +14,16 @@ const Informes = () => {
   const [invoiceType, setInvoiceType] = useState('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters | null>(null);
+  const [isCustomPeriod, setIsCustomPeriod] = useState(false);
 
   const handlePeriodChange = (value: string) => {
     setPeriod(value);
+    setIsCustomPeriod(value === 'custom');
+    
+    // If switching away from custom period, reset date range
+    if (value !== 'custom') {
+      setDateRange(undefined);
+    }
   };
 
   const handleInvoiceTypeChange = (value: string) => {
@@ -25,6 +32,7 @@ const Informes = () => {
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     setDateRange(range);
+    console.log('Date range updated:', range);
   };
 
   const handleAdvancedFiltersChange = (filters: AdvancedFilters) => {
@@ -71,3 +79,4 @@ const Informes = () => {
 };
 
 export default Informes;
+
