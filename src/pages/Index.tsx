@@ -1,5 +1,3 @@
-
-import MainLayout from '@/components/layout/MainLayout';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { InvoicesSummary } from '@/components/dashboard/InvoicesSummary';
@@ -151,63 +149,61 @@ const recentActivities = [
 
 const Index = () => {
   return (
-    <MainLayout>
-      <div className="flex flex-col gap-6">
-        <h1 className="text-3xl font-bold font-heading">Dashboard</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            title="Total por Cobrar"
-            value="$39,500"
-            description="Facturas pendientes de cobro"
-            icon={FileText}
-            trend={4.5}
-            trendLabel="vs. mes anterior"
-            iconClassName="bg-success/10 text-success"
-          />
-          <StatsCard
-            title="Total por Pagar"
-            value="$21,700"
-            description="Facturas pendientes de pago"
-            icon={FileText}
-            trend={-2.3}
-            trendLabel="vs. mes anterior"
-            iconClassName="bg-danger/10 text-danger"
-          />
-          <StatsCard
-            title="Flujo de Efectivo"
-            value="$17,800"
-            description="Balance actual"
-            icon={ArrowDownUp}
-            trend={1.8}
-            trendLabel="vs. mes anterior"
-            iconClassName="bg-payables-500/10 text-payables-500"
-          />
-          <StatsCard
-            title="Facturas Vencidas"
-            value="5"
-            description="Requieren atención inmediata"
-            icon={AlertTriangle}
-            trend={-3}
-            trendLabel="vs. mes anterior"
-            iconClassName="bg-warning/10 text-warning"
-          />
+    <div className="flex flex-col gap-6">
+      <h1 className="text-3xl font-bold font-heading">Dashboard</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatsCard
+          title="Total por Cobrar"
+          value="$39,500"
+          description="Facturas pendientes de cobro"
+          icon={FileText}
+          trend={4.5}
+          trendLabel="vs. mes anterior"
+          iconClassName="bg-success/10 text-success"
+        />
+        <StatsCard
+          title="Total por Pagar"
+          value="$21,700"
+          description="Facturas pendientes de pago"
+          icon={FileText}
+          trend={-2.3}
+          trendLabel="vs. mes anterior"
+          iconClassName="bg-danger/10 text-danger"
+        />
+        <StatsCard
+          title="Flujo de Efectivo"
+          value="$17,800"
+          description="Balance actual"
+          icon={ArrowDownUp}
+          trend={1.8}
+          trendLabel="vs. mes anterior"
+          iconClassName="bg-payables-500/10 text-payables-500"
+        />
+        <StatsCard
+          title="Facturas Vencidas"
+          value="5"
+          description="Requieren atención inmediata"
+          icon={AlertTriangle}
+          trend={-3}
+          trendLabel="vs. mes anterior"
+          iconClassName="bg-warning/10 text-warning"
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <FinancialChart data={financialData} />
         </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <FinancialChart data={financialData} />
-          </div>
-          <div>
-            <RecentActivity activities={recentActivities} />
-          </div>
-        </div>
-        
-        <div className="mt-4">
-          <InvoicesSummary receivable={receivableInvoices} payable={payableInvoices} />
+        <div>
+          <RecentActivity activities={recentActivities} />
         </div>
       </div>
-    </MainLayout>
+      
+      <div className="mt-4">
+        <InvoicesSummary receivable={receivableInvoices} payable={payableInvoices} />
+      </div>
+    </div>
   );
 };
 
