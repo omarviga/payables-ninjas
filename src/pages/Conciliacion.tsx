@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -5,8 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { DateRange } from 'react-day-picker';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 import { 
-  FileUp, Calendar, Filter, CreditCard, Wallet, 
+  FileUp, Filter, CreditCard, Wallet, 
   CheckCircle2, AlertCircle, XCircle, Eye, ArrowUpRight,
   ArrowDownLeft, CheckCheck, FilePlus2, Landmark
 } from 'lucide-react';
@@ -121,9 +126,38 @@ const banks = [
 ];
 
 const Conciliacion = () => {
+  const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [searchTerm, setSearchTerm] = useState('');
+
   const matchedTransactions = transactions.filter(tx => tx.status === 'matched');
   const unmatchedTransactions = transactions.filter(tx => tx.status === 'unmatched');
   const doubtfulTransactions = transactions.filter(tx => tx.status === 'doubtful');
+  
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range);
+    if (range?.from) {
+      toast({
+        title: "Rango de fechas seleccionado",
+        description: range.to 
+          ? `Del ${range.from.toLocaleDateString('es-MX')} al ${range.to.toLocaleDateString('es-MX')}`
+          : `${range.from.toLocaleDateString('es-MX')}`,
+      });
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchTerm.trim()) {
+      toast({
+        title: "Búsqueda realizada",
+        description: `Buscando: "${searchTerm}"`,
+      });
+    }
+  };
   
   const renderTransactionsTable = (txList: typeof transactions) => (
     <div className="border rounded-lg overflow-hidden">
@@ -245,12 +279,13 @@ const Conciliacion = () => {
             type="search"
             placeholder="Buscar por referencia, descripción, monto..."
             className="pl-8 bg-muted/50"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onKeyDown={handleSearchKeyDown}
           />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon">
-            <Calendar className="h-4 w-4" />
-          </Button>
+          <DateRangePicker onChange={handleDateRangeChange} />
           <Button variant="outline" size="icon">
             <Filter className="h-4 w-4" />
           </Button>

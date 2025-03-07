@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ReportsSummary } from '@/components/reports/ReportsSummary';
 import { useToast } from '@/hooks/use-toast';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { DateRange } from 'react-day-picker';
 import { 
-  FileDown, Calendar, Filter, Printer, Share2, 
+  FileDown, Filter, Printer, Share2, 
   BarChart3, PieChart, LineChart, LayoutList, Loader2
 } from 'lucide-react';
 
@@ -16,6 +18,56 @@ import {
 import { FinancialMetricsChart } from '@/components/reports/FinancialMetricsChart';
 import { InvoiceStatusPieChart } from '@/components/reports/InvoiceStatusPieChart';
 import { TopClientsBarChart } from '@/components/reports/TopClientsBarChart';
+
+// Tab content components
+const ChartsTabContent = () => (
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <FinancialMetricsChart />
+    <InvoiceStatusPieChart />
+    <TopClientsBarChart />
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Flujo de Efectivo Proyectado</CardTitle>
+      </CardHeader>
+      <CardContent className="h-72 flex items-center justify-center bg-muted/50 text-muted-foreground">
+        Gráfico de proyección de flujo de efectivo próximamente
+      </CardContent>
+    </Card>
+  </div>
+);
+
+const MetricsTabContent = () => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-lg">Métricas Financieras</CardTitle>
+    </CardHeader>
+    <CardContent className="h-96 flex items-center justify-center bg-muted/50 text-muted-foreground">
+      Métricas financieras detalladas próximamente
+    </CardContent>
+  </Card>
+);
+
+const CategoriesTabContent = () => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-lg">Análisis por Categorías</CardTitle>
+    </CardHeader>
+    <CardContent className="h-96 flex items-center justify-center bg-muted/50 text-muted-foreground">
+      Análisis por categorías próximamente
+    </CardContent>
+  </Card>
+);
+
+const DetailsTabContent = () => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-lg">Detalles de Transacciones</CardTitle>
+    </CardHeader>
+    <CardContent className="h-96 flex items-center justify-center bg-muted/50 text-muted-foreground">
+      Detalles de transacciones próximamente
+    </CardContent>
+  </Card>
+);
 
 const Informes = () => {
   const { toast } = useToast();
@@ -25,6 +77,7 @@ const Informes = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   // Effect to handle filtering state and toast notifications
   useEffect(() => {
@@ -39,7 +92,20 @@ const Informes = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [isFiltering, period, invoiceType]);
+  }, [isFiltering, period, invoiceType, toast]);
+
+  // Effect to handle date range changes
+  useEffect(() => {
+    if (dateRange?.from) {
+      toast({
+        title: "Rango de fechas seleccionado",
+        description: dateRange.to 
+          ? `Del ${dateRange.from.toLocaleDateString('es-MX')} al ${dateRange.to.toLocaleDateString('es-MX')}`
+          : `${dateRange.from.toLocaleDateString('es-MX')}`,
+        variant: "default",
+      });
+    }
+  }, [dateRange, toast]);
 
   // Manejadores para los filtros - simplifícados
   const handlePeriodChange = (value: string) => {
@@ -49,6 +115,11 @@ const Informes = () => {
 
   const handleInvoiceTypeChange = (value: string) => {
     setInvoiceType(value);
+    setIsFiltering(true);
+  };
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range);
     setIsFiltering(true);
   };
 
@@ -143,13 +214,6 @@ const Informes = () => {
     }
   };
 
-  const handleCalendarClick = () => {
-    toast({
-      title: "Calendario",
-      description: "Selector de fecha en desarrollo",
-    });
-  };
-
   const handleAdvancedFilter = () => {
     toast({
       title: "Filtros avanzados",
@@ -177,56 +241,6 @@ const Informes = () => {
       default: return typeValue;
     }
   };
-
-  // Tab content components
-  const ChartsTabContent = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <FinancialMetricsChart />
-      <InvoiceStatusPieChart />
-      <TopClientsBarChart />
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Flujo de Efectivo Proyectado</CardTitle>
-        </CardHeader>
-        <CardContent className="h-72 flex items-center justify-center bg-muted/50 text-muted-foreground">
-          Gráfico de proyección de flujo de efectivo próximamente
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const MetricsTabContent = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Métricas Financieras</CardTitle>
-      </CardHeader>
-      <CardContent className="h-96 flex items-center justify-center bg-muted/50 text-muted-foreground">
-        Métricas financieras detalladas próximamente
-      </CardContent>
-    </Card>
-  );
-
-  const CategoriesTabContent = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Análisis por Categorías</CardTitle>
-      </CardHeader>
-      <CardContent className="h-96 flex items-center justify-center bg-muted/50 text-muted-foreground">
-        Análisis por categorías próximamente
-      </CardContent>
-    </Card>
-  );
-
-  const DetailsTabContent = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Detalles de Transacciones</CardTitle>
-      </CardHeader>
-      <CardContent className="h-96 flex items-center justify-center bg-muted/50 text-muted-foreground">
-        Detalles de transacciones próximamente
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -318,13 +332,7 @@ const Informes = () => {
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={handleCalendarClick}
-            >
-              <Calendar className="h-4 w-4" />
-            </Button>
+            <DateRangePicker onChange={handleDateRangeChange} />
             <Button 
               variant="outline" 
               size="icon"
