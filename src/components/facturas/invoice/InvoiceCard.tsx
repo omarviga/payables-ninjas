@@ -8,8 +8,14 @@ interface InvoiceCardProps {
 }
 
 export function InvoiceCard({ invoice }: InvoiceCardProps) {
+  // Asegurarnos de que tenemos una factura válida
+  if (!invoice) {
+    console.error("Se intentó renderizar InvoiceCard con una factura inválida o undefined");
+    return null;
+  }
+
   return (
-    <div className="p-3 bg-gray-50 rounded-md">
+    <div className="p-3 bg-gray-50 rounded-md" key={invoice.id}>
       <div className="flex justify-between items-center">
         <div className="flex gap-2 items-center">
           <h4 className="font-medium">{invoice.number}</h4>

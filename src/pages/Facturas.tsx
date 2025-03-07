@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { FacturasHeader } from '@/components/facturas/FacturasHeader';
@@ -12,7 +13,7 @@ const Facturas = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [invoicesList, setInvoicesList] = useState<Invoice[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Cambio aquí: iniciar con loading=true
   const [activeTab, setActiveTab] = useState('all');
 
   // Cargar todas las facturas al montar el componente
@@ -52,9 +53,10 @@ const Facturas = () => {
     };
   }, [toast]);
 
-  const receiveInvoices = invoicesList.filter(inv => inv.type === 'receivable');
-  const payableInvoices = invoicesList.filter(inv => inv.type === 'payable');
-  const overdueInvoices = invoicesList.filter(inv => inv.status === 'overdue');
+  // Asegurarnos de que tengamos valores por defecto para evitar errores
+  const receiveInvoices = invoicesList?.filter(inv => inv.type === 'receivable') || [];
+  const payableInvoices = invoicesList?.filter(inv => inv.type === 'payable') || [];
+  const overdueInvoices = invoicesList?.filter(inv => inv.status === 'overdue') || [];
 
   const handleFilter = (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -171,18 +173,18 @@ const Facturas = () => {
         </div>
       ) : (
         <>
-          <InvoiceTabs 
-            allInvoices={invoicesList}
-            receiveInvoices={receiveInvoices}
-            payableInvoices={payableInvoices}
-            overdueInvoices={overdueInvoices}
-            onViewInvoice={handleViewInvoice}
-            onDownloadInvoice={handleDownloadInvoice}
-            onMarkAsPaid={handleMarkAsPaid}
-            onTabChange={handleTabChange}
-          />
-          
-          {invoicesList.length === 0 && (
+          {invoicesList && invoicesList.length > 0 ? (
+            <InvoiceTabs 
+              allInvoices={invoicesList}
+              receiveInvoices={receiveInvoices}
+              payableInvoices={payableInvoices}
+              overdueInvoices={overdueInvoices}
+              onViewInvoice={handleViewInvoice}
+              onDownloadInvoice={handleDownloadInvoice}
+              onMarkAsPaid={handleMarkAsPaid}
+              onTabChange={handleTabChange}
+            />
+          ) : (
             <div className="text-center py-12 border rounded-lg bg-gray-50">
               <FileText className="w-12 h-12 mx-auto text-muted-foreground" />
               <h3 className="mt-4 text-lg font-medium">No hay facturas disponibles</h3>

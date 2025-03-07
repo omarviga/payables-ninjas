@@ -10,7 +10,8 @@ interface ProcessedInvoicesProps {
 }
 
 export function ProcessedInvoices({ invoices, onNavigateToInvoices }: ProcessedInvoicesProps) {
-  if (invoices.length === 0) return null;
+  // Solo renderiza si hay facturas procesadas
+  if (!invoices || invoices.length === 0) return null;
   
   return (
     <div className="mt-6 border rounded-lg p-4">

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
-import { CfdiType } from '@/services/invoiceProcessor';
+import { CfdiType } from '@/services/types/cfdiTypes';
 
 interface InvoiceBadgeProps {
   cfdiType?: CfdiType;

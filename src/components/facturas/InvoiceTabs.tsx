@@ -29,15 +29,21 @@ export const InvoiceTabs = ({
 }: InvoiceTabsProps) => {
   const [activeTab, setActiveTab] = useState('all');
   
+  // Validar que los arrays estén definidos
+  const safeAllInvoices = allInvoices || [];
+  const safeReceiveInvoices = receiveInvoices || [];
+  const safePayableInvoices = payableInvoices || [];
+  const safeOverdueInvoices = overdueInvoices || [];
+  
   // Garantizar que el componente responda a actualizaciones de datos
   useEffect(() => {
     console.log("Actualizando datos de facturas:", {
-      all: allInvoices.length,
-      receivable: receiveInvoices.length,
-      payable: payableInvoices.length,
-      overdue: overdueInvoices.length
+      all: safeAllInvoices.length,
+      receivable: safeReceiveInvoices.length,
+      payable: safePayableInvoices.length,
+      overdue: safeOverdueInvoices.length
     });
-  }, [allInvoices, receiveInvoices, payableInvoices, overdueInvoices]);
+  }, [safeAllInvoices, safeReceiveInvoices, safePayableInvoices, safeOverdueInvoices]);
   
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -55,30 +61,28 @@ export const InvoiceTabs = ({
         <TabsTrigger value="all" className="flex gap-2 items-center">
           <FileText className="h-4 w-4" />
           <span className="hidden sm:inline">Todas</span>
-          <Badge variant="outline" className="ml-auto">{allInvoices.length}</Badge>
+          <Badge variant="outline" className="ml-auto">{safeAllInvoices.length}</Badge>
         </TabsTrigger>
         <TabsTrigger value="receivable" className="flex gap-2 items-center">
           <FileCog className="h-4 w-4" />
           <span className="hidden sm:inline">Por Cobrar</span>
-          <Badge variant="outline" className="ml-auto">{receiveInvoices.length}</Badge>
+          <Badge variant="outline" className="ml-auto">{safeReceiveInvoices.length}</Badge>
         </TabsTrigger>
         <TabsTrigger value="payable" className="flex gap-2 items-center">
           <FileCog className="h-4 w-4" />
           <span className="hidden sm:inline">Por Pagar</span>
-          <Badge variant="outline" className="ml-auto">{payableInvoices.length}</Badge>
+          <Badge variant="outline" className="ml-auto">{safePayableInvoices.length}</Badge>
         </TabsTrigger>
         <TabsTrigger value="overdue" className="flex gap-2 items-center">
           <FileX className="h-4 w-4" />
           <span className="hidden sm:inline">Vencidas</span>
-          <Badge variant="outline" className="ml-auto">
-            {overdueInvoices.length}
-          </Badge>
+          <Badge variant="outline" className="ml-auto">{safeOverdueInvoices.length}</Badge>
         </TabsTrigger>
       </TabsList>
       
       <TabsContent value="all" className="mt-0">
         <InvoiceTable 
-          invoices={allInvoices} 
+          invoices={safeAllInvoices} 
           onViewInvoice={onViewInvoice} 
           onDownloadInvoice={onDownloadInvoice} 
           onMarkAsPaid={onMarkAsPaid} 
@@ -87,7 +91,7 @@ export const InvoiceTabs = ({
       
       <TabsContent value="receivable" className="mt-0">
         <InvoiceTable 
-          invoices={receiveInvoices} 
+          invoices={safeReceiveInvoices} 
           onViewInvoice={onViewInvoice} 
           onDownloadInvoice={onDownloadInvoice} 
           onMarkAsPaid={onMarkAsPaid} 
@@ -96,7 +100,7 @@ export const InvoiceTabs = ({
       
       <TabsContent value="payable" className="mt-0">
         <InvoiceTable 
-          invoices={payableInvoices} 
+          invoices={safePayableInvoices} 
           onViewInvoice={onViewInvoice} 
           onDownloadInvoice={onDownloadInvoice} 
           onMarkAsPaid={onMarkAsPaid} 
@@ -105,7 +109,7 @@ export const InvoiceTabs = ({
       
       <TabsContent value="overdue" className="mt-0">
         <InvoiceTable 
-          invoices={overdueInvoices} 
+          invoices={safeOverdueInvoices} 
           onViewInvoice={onViewInvoice} 
           onDownloadInvoice={onDownloadInvoice} 
           onMarkAsPaid={onMarkAsPaid} 

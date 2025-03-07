@@ -6,7 +6,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Download, Check } from 'lucide-react';
-import { CfdiType } from '@/services/invoiceProcessor';
+import { CfdiType } from '@/services/types/cfdiTypes';
 import type { Invoice } from '@/data/invoices';
 
 const statusColors: Record<string, string> = {
@@ -54,6 +54,9 @@ export const InvoiceTable = ({
   onDownloadInvoice, 
   onMarkAsPaid 
 }: InvoiceTableProps) => {
+  // Asegurarnos de que invoices es un array
+  const safeInvoices = Array.isArray(invoices) ? invoices : [];
+  
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>
@@ -70,14 +73,14 @@ export const InvoiceTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.length === 0 ? (
+          {safeInvoices.length === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="text-center py-4 text-muted-foreground">
                 No hay facturas disponibles
               </TableCell>
             </TableRow>
           ) : (
-            invoices.map((invoice) => (
+            safeInvoices.map((invoice) => (
               <TableRow key={invoice.id}>
                 <TableCell className="font-medium">
                   {invoice.number}
@@ -143,4 +146,4 @@ export const InvoiceTable = ({
       </Table>
     </div>
   );
-};
+}
