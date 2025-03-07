@@ -5,11 +5,15 @@ import { InformesFilters } from '@/components/reports/InformesFilters';
 import { ReportsSummary } from '@/components/reports/ReportsSummary';
 import { InformesTabs } from '@/components/reports/InformesTabs';
 import { DateRange } from 'react-day-picker';
+import { AdvancedFilters } from '@/components/reports/InformesAdvancedFilters';
+import { useToast } from '@/hooks/use-toast';
 
 const Informes = () => {
+  const { toast } = useToast();
   const [period, setPeriod] = useState('month');
   const [invoiceType, setInvoiceType] = useState('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters | null>(null);
 
   const handlePeriodChange = (value: string) => {
     setPeriod(value);
@@ -23,6 +27,31 @@ const Informes = () => {
     setDateRange(range);
   };
 
+  const handleAdvancedFiltersChange = (filters: AdvancedFilters) => {
+    setAdvancedFilters(filters);
+    console.log('Advanced filters applied:', filters);
+    
+    // Log applied filters for debugging
+    if (filters.montoMin || filters.montoMax) {
+      console.log(`Monto: ${filters.montoMin || 0} - ${filters.montoMax || 'sin límite'}`);
+    }
+    
+    if (filters.estado) {
+      console.log(`Estado: ${filters.estado}`);
+    }
+    
+    if (filters.cliente) {
+      console.log(`Cliente: ${filters.cliente}`);
+    }
+    
+    if (filters.categoria && filters.categoria.length > 0) {
+      console.log(`Categoría: ${filters.categoria.join(', ')}`);
+    }
+    
+    console.log(`Incluir canceladas: ${filters.incluirCanceladas}`);
+    console.log(`Incluir borradores: ${filters.incluirBorradores}`);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <InformesHeader />
@@ -31,6 +60,7 @@ const Informes = () => {
         onPeriodChange={handlePeriodChange}
         onInvoiceTypeChange={handleInvoiceTypeChange}
         onDateRangeChange={handleDateRangeChange}
+        onAdvancedFiltersChange={handleAdvancedFiltersChange}
       />
       
       <ReportsSummary />
