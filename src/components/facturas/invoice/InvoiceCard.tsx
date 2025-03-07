@@ -10,6 +10,8 @@ interface InvoiceCardProps {
 }
 
 export function InvoiceCard({ invoice }: InvoiceCardProps) {
+  console.log("Renderizando InvoiceCard:", invoice);
+  
   // Asegurarnos de que tenemos una factura válida
   if (!invoice || !invoice.id) {
     console.error("Se intentó renderizar InvoiceCard con una factura inválida o undefined:", invoice);

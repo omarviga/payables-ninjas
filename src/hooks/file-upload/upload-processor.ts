@@ -81,6 +81,7 @@ export function useFileUploadProcessor(
         }
       }
       
+      setProcessedInvoices(newInvoices);
       setDuplicateCount(duplicates);
       
       if (duplicates > 0) {

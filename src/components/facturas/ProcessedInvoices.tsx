@@ -10,6 +10,8 @@ interface ProcessedInvoicesProps {
 }
 
 export function ProcessedInvoices({ invoices, onNavigateToInvoices }: ProcessedInvoicesProps) {
+  console.log("Procesando ProcessedInvoices. Invoices:", invoices);
+  
   // Solo renderiza si hay facturas procesadas
   if (!invoices || !Array.isArray(invoices) || invoices.length === 0) {
     console.log("No hay facturas procesadas para mostrar");
