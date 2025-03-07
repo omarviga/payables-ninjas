@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FacturasHeader } from '@/components/facturas/FacturasHeader';
 import { FacturasFilterBar } from '@/components/facturas/FacturasFilterBar';
 import { InvoiceTabs } from '@/components/facturas/InvoiceTabs';
-import { getAllInvoices, initInvoices, updateInvoiceStatus } from '@/data/invoices';
+import { getAllInvoices, initInvoices, updateInvoiceStatus, removeInvoice } from '@/data/invoices';
 import type { Invoice } from '@/data/invoices';
 import { FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -145,6 +145,36 @@ const Facturas = () => {
     }
   };
 
+  const handleDeleteInvoice = async (invoiceId: string) => {
+    try {
+      const success = await removeInvoice(invoiceId);
+      
+      if (success) {
+        // Actualizar la lista local
+        const updatedInvoices = invoicesList.filter(inv => inv?.id !== invoiceId);
+        setInvoicesList(updatedInvoices);
+        
+        toast({
+          title: "Factura eliminada",
+          description: "La factura ha sido eliminada exitosamente.",
+        });
+      } else {
+        toast({
+          title: "Error al eliminar factura",
+          description: "No se pudo eliminar la factura. Intenta de nuevo más tarde.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error al eliminar factura:", error);
+      toast({
+        title: "Error al eliminar factura",
+        description: "Ocurrió un error al intentar eliminar la factura.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleViewInvoice = (invoiceId: string) => {
     const invoice = invoicesList.find(inv => inv?.id === invoiceId);
     
@@ -226,6 +256,7 @@ const Facturas = () => {
           onViewInvoice={handleViewInvoice}
           onDownloadInvoice={handleDownloadInvoice}
           onMarkAsPaid={handleMarkAsPaid}
+          onDeleteInvoice={handleDeleteInvoice}
           onTabChange={handleTabChange}
         />
       )}

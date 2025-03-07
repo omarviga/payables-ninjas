@@ -14,6 +14,7 @@ interface InvoiceTabsProps {
   onViewInvoice: (id: string) => void;
   onDownloadInvoice: (id: string) => void;
   onMarkAsPaid: (id: string) => void;
+  onDeleteInvoice: (id: string) => void;
   onTabChange?: (value: string) => void;
 }
 
@@ -25,6 +26,7 @@ export const InvoiceTabs = ({
   onViewInvoice,
   onDownloadInvoice,
   onMarkAsPaid,
+  onDeleteInvoice,
   onTabChange
 }: InvoiceTabsProps) => {
   const [activeTab, setActiveTab] = useState('all');
@@ -86,6 +88,7 @@ export const InvoiceTabs = ({
           onViewInvoice={onViewInvoice} 
           onDownloadInvoice={onDownloadInvoice} 
           onMarkAsPaid={onMarkAsPaid} 
+          onDeleteInvoice={onDeleteInvoice}
         />
       </TabsContent>
       
@@ -94,7 +97,8 @@ export const InvoiceTabs = ({
           invoices={safeReceiveInvoices} 
           onViewInvoice={onViewInvoice} 
           onDownloadInvoice={onDownloadInvoice} 
-          onMarkAsPaid={onMarkAsPaid} 
+          onMarkAsPaid={onMarkAsPaid}
+          onDeleteInvoice={onDeleteInvoice}
         />
       </TabsContent>
       
@@ -103,7 +107,8 @@ export const InvoiceTabs = ({
           invoices={safePayableInvoices} 
           onViewInvoice={onViewInvoice} 
           onDownloadInvoice={onDownloadInvoice} 
-          onMarkAsPaid={onMarkAsPaid} 
+          onMarkAsPaid={onMarkAsPaid}
+          onDeleteInvoice={onDeleteInvoice}
         />
       </TabsContent>
       
@@ -112,7 +117,8 @@ export const InvoiceTabs = ({
           invoices={safeOverdueInvoices} 
           onViewInvoice={onViewInvoice} 
           onDownloadInvoice={onDownloadInvoice} 
-          onMarkAsPaid={onMarkAsPaid} 
+          onMarkAsPaid={onMarkAsPaid}
+          onDeleteInvoice={onDeleteInvoice}
         />
       </TabsContent>
     </Tabs>

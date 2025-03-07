@@ -1,4 +1,3 @@
-
 import { supabase, getPublicUrl } from './client';
 import type { Invoice } from '@/data/invoices';
 import { CfdiType } from '@/services/types/cfdiTypes';
@@ -188,4 +187,58 @@ export const downloadInvoiceFile = async (invoice: Invoice): Promise<string | nu
   }
   
   return getPublicUrl(invoice.storagePath);
+};
+
+// Eliminar una factura
+export const deleteInvoice = async (invoiceId: string): Promise<boolean> => {
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) {
+      console.log("Usuario no autenticado, utilizando modo de demostración");
+      return true; // En modo demo, fingimos que todo fue bien
+    }
+
+    // Primero obtenemos la factura para ver si tiene un archivo asociado
+    const { data: invoiceData, error: fetchError } = await supabase
+      .from('invoices')
+      .select('storage_path')
+      .eq('id', invoiceId)
+      .eq('user_id', userData.user.id)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('Error al obtener factura para eliminar:', fetchError);
+      return false;
+    }
+
+    // Si la factura tiene un archivo en Storage, lo eliminamos primero
+    if (invoiceData?.storage_path) {
+      const { error: storageError } = await supabase
+        .storage
+        .from('invoices')
+        .remove([invoiceData.storage_path]);
+
+      if (storageError) {
+        console.error('Error al eliminar archivo de factura:', storageError);
+        // Continuamos con la eliminación de la factura aunque falle la eliminación del archivo
+      }
+    }
+
+    // Eliminamos la factura de la base de datos
+    const { error } = await supabase
+      .from('invoices')
+      .delete()
+      .eq('id', invoiceId)
+      .eq('user_id', userData.user.id);
+
+    if (error) {
+      console.error('Error al eliminar factura:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error inesperado al eliminar factura:', error);
+    return false;
+  }
 };

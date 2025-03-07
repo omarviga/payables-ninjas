@@ -1,6 +1,6 @@
 
 import { CfdiType } from '@/services/types/cfdiTypes';
-import { fetchInvoices, addInvoicesToDb, updateInvoice } from '@/services/supabase/invoiceService';
+import { fetchInvoices, addInvoicesToDb, updateInvoice, deleteInvoice } from '@/services/supabase/invoiceService';
 
 // Datos para las facturas
 export interface Invoice {
@@ -32,79 +32,15 @@ export const initInvoices = async (): Promise<void> => {
       invoices = dbInvoices;
       console.log("Facturas cargadas desde Supabase:", invoices.length);
     } else {
-      console.log("No se encontraron facturas en Supabase, usando datos de ejemplo");
-      // Si no hay facturas en la caché local o Supabase, usar datos de ejemplo
-      if (invoices.length === 0) {
-        invoices = getExampleInvoices();
-        console.log("Facturas de ejemplo cargadas:", invoices.length);
-      }
+      console.log("No se encontraron facturas en Supabase");
+      // No utilizamos facturas de ejemplo - inicializamos con array vacío
+      invoices = [];
     }
   } catch (error) {
     console.error("Error al inicializar facturas:", error);
-    // Usar facturas de ejemplo en caso de error
-    if (invoices.length === 0) {
-      invoices = getExampleInvoices();
-      console.log("Error al cargar desde Supabase, usando datos de ejemplo:", invoices.length);
-    }
+    // Inicializamos con array vacío en caso de error
+    invoices = [];
   }
-};
-
-// Función para obtener facturas de ejemplo (para testing y demo)
-const getExampleInvoices = (): Invoice[] => {
-  return [
-    {
-      id: 'inv-001',
-      number: 'A-001',
-      client: 'Distribuidora Nacional S.A.',
-      amount: 12500,
-      date: '15/05/2023',
-      dueDate: '15/06/2023',
-      status: 'paid',
-      type: 'receivable',
-      cfdiType: CfdiType.INGRESO,
-      uuid: 'UUID-001-1234567890',
-      relatedDocuments: []
-    },
-    {
-      id: 'inv-002',
-      number: 'A-002',
-      client: 'Cliente Nuevo S.A.',
-      amount: 8500,
-      date: '20/05/2023',
-      dueDate: '20/06/2023',
-      status: 'pending',
-      type: 'receivable',
-      cfdiType: CfdiType.INGRESO,
-      uuid: 'UUID-002-0987654321',
-      relatedDocuments: []
-    },
-    {
-      id: 'prov-001',
-      number: 'B-001',
-      client: 'Suministros Industriales',
-      amount: 9750,
-      date: '10/05/2023',
-      dueDate: '10/06/2023',
-      status: 'pending',
-      type: 'payable',
-      cfdiType: CfdiType.INGRESO,
-      uuid: 'UUID-003-5678901234',
-      relatedDocuments: []
-    },
-    {
-      id: 'prov-002',
-      number: 'B-002',
-      client: 'Proveedor de Servicios',
-      amount: 5000,
-      date: '05/05/2023',
-      dueDate: '05/06/2023',
-      status: 'overdue',
-      type: 'payable',
-      cfdiType: CfdiType.INGRESO,
-      uuid: 'UUID-004-2345678901',
-      relatedDocuments: []
-    }
-  ];
 };
 
 // Función para agregar nuevas facturas al sistema
@@ -184,6 +120,32 @@ export const updateInvoiceStatus = async (invoiceId: string, status: "paid" | "p
     // Actualizar solo la caché local en caso de error
     invoices = invoices.map(inv => inv.id === invoiceId ? updatedInvoice : inv);
     return true;
+  }
+};
+
+// Función para eliminar una factura
+export const removeInvoice = async (invoiceId: string): Promise<boolean> => {
+  if (!invoiceId) {
+    console.error("Se intentó eliminar una factura sin ID");
+    return false;
+  }
+  
+  try {
+    // Intentar eliminar en Supabase
+    const success = await deleteInvoice(invoiceId);
+    
+    if (success) {
+      // Actualizar la caché local
+      invoices = invoices.filter(inv => inv.id !== invoiceId);
+      console.log("Factura eliminada correctamente:", invoiceId);
+      return true;
+    } else {
+      console.warn("No se pudo eliminar la factura en Supabase");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error al eliminar factura:", error);
+    return false;
   }
 };
 

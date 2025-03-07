@@ -5,7 +5,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, Download, Check } from 'lucide-react';
+import { Eye, Download, Check, Trash2 } from 'lucide-react';
 import { CfdiType } from '@/services/types/cfdiTypes';
 import type { Invoice } from '@/data/invoices';
 
@@ -46,13 +46,15 @@ interface InvoiceTableProps {
   onViewInvoice: (id: string) => void;
   onDownloadInvoice: (id: string) => void;
   onMarkAsPaid: (id: string) => void;
+  onDeleteInvoice: (id: string) => void;
 }
 
 export const InvoiceTable = ({ 
   invoices, 
   onViewInvoice, 
   onDownloadInvoice, 
-  onMarkAsPaid 
+  onMarkAsPaid,
+  onDeleteInvoice
 }: InvoiceTableProps) => {
   // Asegurarnos de que invoices es un array
   const safeInvoices = Array.isArray(invoices) ? invoices : [];
@@ -137,6 +139,15 @@ export const InvoiceTable = ({
                         <Check className="h-4 w-4" />
                       </Button>
                     )}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-danger" 
+                      title="Eliminar factura"
+                      onClick={() => onDeleteInvoice(invoice.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
