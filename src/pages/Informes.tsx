@@ -77,7 +77,8 @@ const Informes = () => {
       toast({
         title: "Exportación completada",
         description: "El archivo ha sido descargado",
-        variant: "success",
+        // Changed from "success" to "default" as "success" is not a valid variant
+        variant: "default",
       });
     }, 1500);
   };
