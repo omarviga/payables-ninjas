@@ -7,21 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Download, Check } from 'lucide-react';
 import { CfdiType } from '@/services/invoiceProcessor';
-
-// Define the invoice type
-export interface Invoice {
-  id: string;
-  number: string;
-  client: string;
-  amount: number;
-  date: string;
-  dueDate: string;
-  status: "paid" | "pending" | "overdue";
-  type: "receivable" | "payable";
-  cfdiType?: CfdiType;
-  uuid?: string;
-  relatedDocuments?: string[];
-}
+import type { Invoice } from '@/data/invoices';
 
 const statusColors: Record<string, string> = {
   paid: "bg-success/20 text-success hover:bg-success/30",
@@ -84,67 +70,75 @@ export const InvoiceTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow key={invoice.id}>
-              <TableCell className="font-medium">
-                {invoice.number}
-                {invoice.uuid && (
-                  <div className="text-xs text-muted-foreground font-mono truncate max-w-[120px]" title={invoice.uuid}>
-                    {invoice.uuid.substring(0, 8)}...
-                  </div>
-                )}
+          {invoices.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center py-4 text-muted-foreground">
+                No hay facturas disponibles
               </TableCell>
-              <TableCell>{invoice.client}</TableCell>
-              <TableCell className="text-right">
-                ${invoice.amount.toLocaleString('es-MX')}
-              </TableCell>
-              <TableCell>{invoice.date}</TableCell>
-              <TableCell>{invoice.dueDate}</TableCell>
-              <TableCell>
-                <Badge variant="outline" className={statusColors[invoice.status]}>
-                  {statusMap[invoice.status]}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                {invoice.cfdiType && (
-                  <Badge variant="outline" className={cfdiTypeColors[invoice.cfdiType]}>
-                    {cfdiTypeMap[invoice.cfdiType]}
+            </TableRow>
+          ) : (
+            invoices.map((invoice) => (
+              <TableRow key={invoice.id}>
+                <TableCell className="font-medium">
+                  {invoice.number}
+                  {invoice.uuid && (
+                    <div className="text-xs text-muted-foreground font-mono truncate max-w-[120px]" title={invoice.uuid}>
+                      {invoice.uuid.substring(0, 8)}...
+                    </div>
+                  )}
+                </TableCell>
+                <TableCell>{invoice.client}</TableCell>
+                <TableCell className="text-right">
+                  ${invoice.amount.toLocaleString('es-MX')}
+                </TableCell>
+                <TableCell>{invoice.date}</TableCell>
+                <TableCell>{invoice.dueDate}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={statusColors[invoice.status]}>
+                    {statusMap[invoice.status]}
                   </Badge>
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    title="Ver factura"
-                    onClick={() => onViewInvoice(invoice.id)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    title="Descargar factura"
-                    onClick={() => onDownloadInvoice(invoice.id)}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  {invoice.status === 'pending' && (
+                </TableCell>
+                <TableCell>
+                  {invoice.cfdiType && (
+                    <Badge variant="outline" className={cfdiTypeColors[invoice.cfdiType]}>
+                      {cfdiTypeMap[invoice.cfdiType]}
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-1">
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="text-success" 
-                      title="Marcar como pagada"
-                      onClick={() => onMarkAsPaid(invoice.id)}
+                      title="Ver factura"
+                      onClick={() => onViewInvoice(invoice.id)}
                     >
-                      <Check className="h-4 w-4" />
+                      <Eye className="h-4 w-4" />
                     </Button>
-                  )}
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      title="Descargar factura"
+                      onClick={() => onDownloadInvoice(invoice.id)}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    {invoice.status === 'pending' && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-success" 
+                        title="Marcar como pagada"
+                        onClick={() => onMarkAsPaid(invoice.id)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

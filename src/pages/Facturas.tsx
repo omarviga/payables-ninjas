@@ -1,17 +1,21 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { FacturasHeader } from '@/components/facturas/FacturasHeader';
 import { FacturasFilterBar } from '@/components/facturas/FacturasFilterBar';
 import { InvoiceTabs } from '@/components/facturas/InvoiceTabs';
 import { getAllInvoices } from '@/data/invoices';
-import type { Invoice } from '@/components/facturas/InvoiceTable';
+import type { Invoice } from '@/data/invoices';
 import { FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Facturas = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [invoicesList, setInvoicesList] = useState<Invoice[]>([]);
   const [activeTab, setActiveTab] = useState('all');
 
+  // Cargar todas las facturas al montar el componente
   useEffect(() => {
     const invoices = getAllInvoices();
     setInvoicesList(invoices);
@@ -93,9 +97,13 @@ const Facturas = () => {
     setActiveTab(value);
   };
 
+  const handleUploadFacturas = () => {
+    navigate('/cargar-facturas');
+  };
+
   return (
     <div className="flex flex-col gap-6">
-      <FacturasHeader />
+      <FacturasHeader onUploadClick={handleUploadFacturas} />
       
       <FacturasFilterBar 
         onFilter={handleFilter}

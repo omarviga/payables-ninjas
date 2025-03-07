@@ -1,16 +1,24 @@
 
 import { Button } from '@/components/ui/button';
 import { FileUp, Download } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
-export const FacturasHeader = () => {
+interface FacturasHeaderProps {
+  onUploadClick?: () => void;
+}
+
+export const FacturasHeader = ({ onUploadClick }: FacturasHeaderProps) => {
   const { toast } = useToast();
 
   const handleImportInvoices = () => {
-    toast({
-      title: "Importar facturas",
-      description: "Esta funcionalidad permitirá importar facturas desde un archivo CSV.",
-    });
+    if (onUploadClick) {
+      onUploadClick();
+    } else {
+      toast({
+        title: "Importar facturas",
+        description: "Esta funcionalidad permitirá importar facturas desde un archivo CSV.",
+      });
+    }
   };
 
   const handleDownloadFromSAT = () => {

@@ -1,9 +1,10 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { FileText, FileCog, FileX } from 'lucide-react';
-import { InvoiceTable, Invoice } from './InvoiceTable';
+import { InvoiceTable } from './InvoiceTable';
+import type { Invoice } from '@/data/invoices';
 
 interface InvoiceTabsProps {
   allInvoices: Invoice[];
@@ -27,6 +28,16 @@ export const InvoiceTabs = ({
   onTabChange
 }: InvoiceTabsProps) => {
   const [activeTab, setActiveTab] = useState('all');
+  
+  // Garantizar que el componente responda a actualizaciones de datos
+  useEffect(() => {
+    console.log("Actualizando datos de facturas:", {
+      all: allInvoices.length,
+      receivable: receiveInvoices.length,
+      payable: payableInvoices.length,
+      overdue: overdueInvoices.length
+    });
+  }, [allInvoices, receiveInvoices, payableInvoices, overdueInvoices]);
   
   const handleTabChange = (value: string) => {
     setActiveTab(value);
