@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { FileText, Settings } from "lucide-react";
 import { SatDownloadForm } from './SatDownloadForm';
+import { SatAuthConfigForm } from './SatAuthConfigForm';
 
 interface SatDownloadTabProps {
   onConfigureConnection: () => void;
@@ -11,26 +12,27 @@ interface SatDownloadTabProps {
 
 export function SatDownloadTab({ onConfigureConnection, onNavigateToInvoices = () => {} }: SatDownloadTabProps) {
   const [isConfigured, setIsConfigured] = useState<boolean>(false);
+  const [showAuthConfig, setShowAuthConfig] = useState<boolean>(false);
   
-  // En un entorno real, esta función verificaría la conexión con el SAT
-  const checkSatConnection = () => {
-    // Simulamos que la configuración está guardada en localStorage
+  // Verificamos si hay credenciales guardadas al montar el componente
+  useEffect(() => {
     const hasSatConfig = localStorage.getItem('satCredentials');
-    return !!hasSatConfig;
-  };
-  
-  // Al montar el componente, verificamos si ya existe configuración
-  React.useEffect(() => {
-    const hasConfig = checkSatConnection();
-    setIsConfigured(hasConfig);
+    setIsConfigured(!!hasSatConfig);
   }, []);
   
   const handleConfigureSat = () => {
+    // Mostramos el formulario de configuración
+    setShowAuthConfig(true);
     onConfigureConnection();
-    
-    // Simular que el usuario ha configurado correctamente
-    localStorage.setItem('satCredentials', 'true');
+  };
+  
+  const handleAuthSuccess = () => {
+    setShowAuthConfig(false);
     setIsConfigured(true);
+  };
+  
+  const handleAuthCancel = () => {
+    setShowAuthConfig(false);
   };
   
   if (!isConfigured) {
@@ -48,6 +50,13 @@ export function SatDownloadTab({ onConfigureConnection, onNavigateToInvoices = (
           <Settings className="mr-2 h-4 w-4" />
           Configurar Conexión SAT
         </Button>
+        
+        {/* Formulario de autenticación del SAT */}
+        <SatAuthConfigForm 
+          open={showAuthConfig}
+          onSuccess={handleAuthSuccess}
+          onCancel={handleAuthCancel}
+        />
       </div>
     );
   }
@@ -62,8 +71,15 @@ export function SatDownloadTab({ onConfigureConnection, onNavigateToInvoices = (
           onClick={handleConfigureSat}
         >
           <Settings className="mr-2 h-4 w-4" />
-          Reconfigurtar
+          Reconfigurar
         </Button>
+        
+        {/* Formulario de autenticación del SAT */}
+        <SatAuthConfigForm 
+          open={showAuthConfig}
+          onSuccess={handleAuthSuccess}
+          onCancel={handleAuthCancel}
+        />
       </div>
       
       <SatDownloadForm onNavigateToInvoices={onNavigateToInvoices} />

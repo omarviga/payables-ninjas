@@ -1,8 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarIcon, Download, RefreshCw } from "lucide-react";
@@ -11,6 +9,7 @@ import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { Label } from "@/components/ui/label";
 
 interface SatDownloadFormProps {
   onNavigateToInvoices: () => void;
@@ -24,6 +23,20 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
     to: new Date()
   });
   const [invoiceType, setInvoiceType] = useState<string>("all");
+  const [connectedRFC, setConnectedRFC] = useState<string>("");
+
+  // Obtener el RFC de las credenciales guardadas
+  useEffect(() => {
+    const satCredentialsStr = localStorage.getItem('satCredentials');
+    if (satCredentialsStr) {
+      try {
+        const satCredentials = JSON.parse(satCredentialsStr);
+        setConnectedRFC(satCredentials.rfc);
+      } catch (e) {
+        console.error("Error parsing SAT credentials:", e);
+      }
+    }
+  }, []);
 
   const handleDownload = async () => {
     setLoading(true);
@@ -52,6 +65,18 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
 
   return (
     <div className="space-y-6">
+      {connectedRFC && (
+        <div className="rounded-md bg-muted p-3 flex items-center space-x-3">
+          <div className="h-8 w-8 rounded-full bg-payables-100 flex items-center justify-center">
+            <CalendarIcon className="h-4 w-4 text-payables-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">Cuenta conectada: <span className="font-semibold">{connectedRFC}</span></p>
+            <p className="text-xs text-muted-foreground">Autorizado para descarga automática de CFDI</p>
+          </div>
+        </div>
+      )}
+      
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-5">
