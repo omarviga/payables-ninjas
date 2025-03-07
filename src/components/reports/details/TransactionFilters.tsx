@@ -55,7 +55,6 @@ export function TransactionFilters({ filters, setFilters }: TransactionFiltersPr
             <DateRangePicker
               initialDateRange={filters.dateRange}
               onChange={handleDateRangeChange}
-              placeholder="Seleccionar fechas"
             />
           </div>
           
