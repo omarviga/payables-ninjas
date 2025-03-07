@@ -8,6 +8,7 @@ import Pagos from './pages/Pagos';
 import Conciliacion from './pages/Conciliacion';
 import Informes from './pages/Informes';
 import Contactos from './pages/Contactos';
+import Configuracion from './pages/Configuracion';
 import NotFound from './pages/NotFound';
 import './App.css';
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="conciliacion" element={<Conciliacion />} />
         <Route path="informes" element={<Informes />} />
         <Route path="contactos" element={<Contactos />} />
+        <Route path="configuracion" element={<Configuracion />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

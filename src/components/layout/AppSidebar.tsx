@@ -1,4 +1,5 @@
 
+
 import { 
   BarChart3, 
   FileText, 
@@ -23,7 +24,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger
 } from '@/components/ui/sidebar';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 // Definición de los elementos del menú
 const menuItems = [
@@ -79,6 +80,12 @@ const adminMenuItems = [
 ];
 
 export function AppSidebar() {
+  const location = useLocation();
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+  
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="py-6">
@@ -99,7 +106,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild isActive={isActive(item.path)}>
                     <Link to={item.path} className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
@@ -117,7 +124,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {adminMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild isActive={isActive(item.path)}>
                     <Link to={item.path} className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
