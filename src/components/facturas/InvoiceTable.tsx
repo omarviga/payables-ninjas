@@ -6,6 +6,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Download, Check } from 'lucide-react';
+import { CfdiType } from '@/services/invoiceProcessor';
 
 // Define the invoice type
 export interface Invoice {
@@ -17,6 +18,9 @@ export interface Invoice {
   dueDate: string;
   status: "paid" | "pending" | "overdue";
   type: "receivable" | "payable";
+  cfdiType?: CfdiType;
+  uuid?: string;
+  relatedDocuments?: string[];
 }
 
 const statusColors: Record<string, string> = {
@@ -29,6 +33,26 @@ const statusMap: Record<string, string> = {
   paid: "Pagado",
   pending: "Pendiente",
   overdue: "Vencido",
+};
+
+const cfdiTypeColors: Record<string, string> = {
+  [CfdiType.INGRESO]: "bg-payables-600/20 text-payables-600",
+  [CfdiType.EGRESO]: "bg-purple-600/20 text-purple-600",
+  [CfdiType.PAGO]: "bg-blue-600/20 text-blue-600",
+  [CfdiType.TRASLADO]: "bg-amber-600/20 text-amber-600",
+  [CfdiType.NOMINA]: "bg-green-600/20 text-green-600",
+  [CfdiType.DONATIVO]: "bg-pink-600/20 text-pink-600",
+  [CfdiType.EXPORTACION]: "bg-indigo-600/20 text-indigo-600",
+};
+
+const cfdiTypeMap: Record<string, string> = {
+  [CfdiType.INGRESO]: "Ingreso",
+  [CfdiType.EGRESO]: "Egreso",
+  [CfdiType.PAGO]: "Pago",
+  [CfdiType.TRASLADO]: "Traslado",
+  [CfdiType.NOMINA]: "Nómina",
+  [CfdiType.DONATIVO]: "Donativo",
+  [CfdiType.EXPORTACION]: "Exportación",
 };
 
 interface InvoiceTableProps {
@@ -55,13 +79,21 @@ export const InvoiceTable = ({
             <TableHead>Fecha Emisión</TableHead>
             <TableHead>Fecha Vencimiento</TableHead>
             <TableHead>Estado</TableHead>
+            <TableHead>Tipo CFDI</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {invoices.map((invoice) => (
             <TableRow key={invoice.id}>
-              <TableCell className="font-medium">{invoice.number}</TableCell>
+              <TableCell className="font-medium">
+                {invoice.number}
+                {invoice.uuid && (
+                  <div className="text-xs text-muted-foreground font-mono truncate max-w-[120px]" title={invoice.uuid}>
+                    {invoice.uuid.substring(0, 8)}...
+                  </div>
+                )}
+              </TableCell>
               <TableCell>{invoice.client}</TableCell>
               <TableCell className="text-right">
                 ${invoice.amount.toLocaleString('es-MX')}
@@ -72,6 +104,13 @@ export const InvoiceTable = ({
                 <Badge variant="outline" className={statusColors[invoice.status]}>
                   {statusMap[invoice.status]}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                {invoice.cfdiType && (
+                  <Badge variant="outline" className={cfdiTypeColors[invoice.cfdiType]}>
+                    {cfdiTypeMap[invoice.cfdiType]}
+                  </Badge>
+                )}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">

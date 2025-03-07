@@ -1,4 +1,6 @@
 
+import { CfdiType } from '@/services/invoiceProcessor';
+
 // Datos para las facturas
 export interface Invoice {
   id: string;
@@ -9,6 +11,9 @@ export interface Invoice {
   dueDate: string;
   status: "paid" | "pending" | "overdue";
   type: "receivable" | "payable";
+  cfdiType?: CfdiType;  // Tipo de CFDI según clasificación SAT
+  uuid?: string;        // UUID único del CFDI
+  relatedDocuments?: string[];  // Documentos relacionados (UUID)
 }
 
 // Inicialmente vacío, se llenará con los datos cargados desde XML

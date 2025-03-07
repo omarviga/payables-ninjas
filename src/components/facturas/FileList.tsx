@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { FileText, FilePlus2, FileWarning, Receipt } from "lucide-react";
+import { FileText, FilePlus2, FileWarning, Receipt, FileSpreadsheet, FileBadge, FileCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface FileListProps {
@@ -14,13 +14,19 @@ interface FileListProps {
 export function FileList({ files, cfdiTypes, onRemoveFile, uploading }: FileListProps) {
   const fileIcon = (fileName: string) => {
     if (fileName.endsWith('.xml')) {
-      const type = cfdiTypes[fileName] || 'factura';
+      const type = cfdiTypes[fileName] || 'ingreso';
       
       switch (type) {
         case 'complemento-pago':
+        case 'pago':
           return <Receipt className="h-8 w-8 text-blue-600" />;
         case 'nota-credito':
-          return <FilePlus2 className="h-8 w-8 text-purple-600" />;
+        case 'egreso':
+          return <FileBadge className="h-8 w-8 text-purple-600" />;
+        case 'traslado':
+          return <FileSpreadsheet className="h-8 w-8 text-amber-600" />;
+        case 'nomina':
+          return <FileCheck className="h-8 w-8 text-green-600" />;
         default:
           return <FileText className="h-8 w-8 text-payables-600" />;
       }
@@ -32,18 +38,31 @@ export function FileList({ files, cfdiTypes, onRemoveFile, uploading }: FileList
   const getCfdiTypeLabel = (fileName: string) => {
     if (!fileName.endsWith('.xml')) return null;
     
-    const type = cfdiTypes[fileName] || 'factura';
-    let label = 'Factura';
+    const type = cfdiTypes[fileName] || 'ingreso';
+    let label = 'CFDI de Ingreso';
     let className = 'bg-payables-600 text-white';
     
     switch (type) {
       case 'complemento-pago':
-        label = 'Complemento de Pago';
+      case 'pago':
+        label = 'CFDI de Pago';
         className = 'bg-blue-600 text-white';
         break;
       case 'nota-credito':
         label = 'Nota de Crédito';
         className = 'bg-purple-600 text-white';
+        break;
+      case 'egreso':
+        label = 'CFDI de Egreso';
+        className = 'bg-purple-600 text-white';
+        break;
+      case 'traslado':
+        label = 'CFDI de Traslado';
+        className = 'bg-amber-600 text-white';
+        break;
+      case 'nomina':
+        label = 'CFDI de Nómina';
+        className = 'bg-green-600 text-white';
         break;
     }
     
