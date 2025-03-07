@@ -17,7 +17,7 @@ export interface Invoice {
 }
 
 // Facturas de ejemplo para pruebas
-export const invoices: Invoice[] = [
+let invoices: Invoice[] = [
   {
     id: 'inv-001',
     number: 'A-001',
@@ -73,7 +73,9 @@ export const invoices: Invoice[] = [
 ];
 
 // Función para agregar nuevas facturas al sistema
-export const addInvoices = (newInvoices: Invoice[]) => {
+export const addInvoices = (newInvoices: Invoice[]): Invoice[] => {
+  console.log("Agregando nuevas facturas al sistema:", newInvoices.length);
+  
   // Agregar IDs únicos si no los tienen
   const invoicesWithIds = newInvoices.map((invoice, index) => {
     if (!invoice.id) {
@@ -83,12 +85,14 @@ export const addInvoices = (newInvoices: Invoice[]) => {
   });
   
   // Actualizar el array de facturas
-  invoices.push(...invoicesWithIds);
+  invoices = [...invoices, ...invoicesWithIds];
+  console.log("Total de facturas en el sistema:", invoices.length);
   
   return invoicesWithIds;
 };
 
 // Función para obtener todas las facturas
 export const getAllInvoices = (): Invoice[] => {
+  console.log("Obteniendo todas las facturas, cantidad:", invoices.length);
   return [...invoices];
 };

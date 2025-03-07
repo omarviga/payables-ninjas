@@ -1,4 +1,3 @@
-
 import type { Invoice } from '@/data/invoices';
 
 // Enum para los tipos de CFDI
@@ -71,6 +70,8 @@ export const processXmlFile = (file: File): Promise<Invoice> => {
     
     reader.onload = (e) => {
       const xmlContent = e.target?.result as string;
+      console.log("Procesando archivo XML:", file.name);
+      
       // Aquí extraeríamos realmente los datos del XML
       // Para esta demo, simulamos la extracción basada en el nombre del archivo
       
@@ -111,10 +112,12 @@ export const processXmlFile = (file: File): Promise<Invoice> => {
         relatedDocuments: cfdiMetadata.relacionados?.map(rel => rel.uuid) || [] // Documentos relacionados
       };
       
+      console.log("Factura procesada:", invoice);
       resolve(invoice);
     };
     
-    reader.onerror = () => {
+    reader.onerror = (error) => {
+      console.error("Error al procesar el archivo XML:", error);
       // En caso de error, devolver una factura con datos genéricos
       resolve({
         id: `error-${Date.now()}`,

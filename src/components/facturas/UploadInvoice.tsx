@@ -88,6 +88,7 @@ export function UploadInvoice() {
   };
 
   const uploadFiles = async () => {
+    console.log("Iniciando procesamiento de archivos");
     if (files.length === 0) {
       toast({
         title: "Sin archivos",
@@ -108,29 +109,38 @@ export function UploadInvoice() {
       file.name.endsWith('.xml')
     );
     
+    console.log(`Procesando ${xmlFiles.length} archivos XML`);
     const newInvoices: Invoice[] = [];
     let processed = 0;
     
     // Procesar cada archivo XML
     for (const file of xmlFiles) {
-      const invoice = await processXmlFile(file);
-      newInvoices.push(invoice);
-      
-      processed++;
-      setProgress(Math.floor((processed / xmlFiles.length) * 100));
+      try {
+        console.log(`Procesando archivo: ${file.name}`);
+        const invoice = await processXmlFile(file);
+        newInvoices.push(invoice);
+        
+        processed++;
+        setProgress(Math.floor((processed / xmlFiles.length) * 100));
+      } catch (error) {
+        console.error(`Error al procesar archivo ${file.name}:`, error);
+      }
     }
     
     // Agregar facturas procesadas al sistema
     if (newInvoices.length > 0) {
+      console.log(`Se procesaron ${newInvoices.length} facturas correctamente`);
+      
       // Guardar las facturas en el estado global
-      addInvoices(newInvoices);
-      setProcessedInvoices(newInvoices);
+      const savedInvoices = addInvoices(newInvoices);
+      setProcessedInvoices(savedInvoices);
       
       toast({
         title: "Carga completada",
         description: `Se han procesado ${newInvoices.length} CFDIs correctamente.`
       });
     } else {
+      console.warn("No se encontraron XMLs válidos para procesar");
       toast({
         title: "No se encontraron XMLs válidos",
         description: "Ninguno de los archivos seleccionados contiene datos CFDI válidos.",

@@ -4,13 +4,21 @@ import { ChartAndActivitySection } from '@/components/dashboard/ChartAndActivity
 import { InvoicesSummary } from '@/components/dashboard/InvoicesSummary';
 import { financialData, recentActivities } from '@/data/dashboardData';
 import { getAllInvoices } from '@/data/invoices';
+import { useEffect, useState } from 'react';
+import type { Invoice } from '@/data/invoices';
 
 // Define the proper type for activity status
 type ActivityStatus = "completed" | "failed" | "pending" | "warning";
 
 const Index = () => {
-  // Obtener todas las facturas del sistema
-  const allInvoices = getAllInvoices();
+  const [allInvoices, setAllInvoices] = useState<Invoice[]>([]);
+  
+  // Cargar facturas al montar el componente y cuando se actualiza
+  useEffect(() => {
+    const invoices = getAllInvoices();
+    console.log("Dashboard: Cargando facturas, cantidad:", invoices.length);
+    setAllInvoices(invoices);
+  }, []);
   
   // Separar facturas por cobrar y por pagar
   const receivableInvoices = allInvoices.filter(inv => inv.type === 'receivable');

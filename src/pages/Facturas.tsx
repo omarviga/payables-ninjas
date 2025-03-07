@@ -17,8 +17,26 @@ const Facturas = () => {
 
   // Cargar todas las facturas al montar el componente
   useEffect(() => {
-    const invoices = getAllInvoices();
-    setInvoicesList(invoices);
+    const loadInvoices = () => {
+      const invoices = getAllInvoices();
+      console.log("Facturas: Cargando facturas, cantidad:", invoices.length);
+      setInvoicesList(invoices);
+    };
+
+    loadInvoices();
+    
+    // Recargar las facturas cada vez que se regresa a la página
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadInvoices();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const receiveInvoices = invoicesList.filter(inv => inv.type === 'receivable');
