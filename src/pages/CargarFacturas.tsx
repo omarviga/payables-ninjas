@@ -2,6 +2,8 @@
 import { UploadInvoice } from '@/components/facturas/UploadInvoice';
 
 const CargarFacturas = () => {
+  console.log("Renderizando página CargarFacturas");
+  
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold font-heading">Cargar Facturas (CFDI)</h1>

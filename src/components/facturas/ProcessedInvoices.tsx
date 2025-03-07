@@ -11,7 +11,12 @@ interface ProcessedInvoicesProps {
 
 export function ProcessedInvoices({ invoices, onNavigateToInvoices }: ProcessedInvoicesProps) {
   // Solo renderiza si hay facturas procesadas
-  if (!invoices || invoices.length === 0) return null;
+  if (!invoices || invoices.length === 0) {
+    console.log("No hay facturas procesadas para mostrar");
+    return null;
+  }
+  
+  console.log(`Mostrando ${invoices.length} facturas procesadas`, invoices);
   
   return (
     <div className="mt-6 border rounded-lg p-4">
@@ -19,7 +24,9 @@ export function ProcessedInvoices({ invoices, onNavigateToInvoices }: ProcessedI
       
       <div className="space-y-3">
         {invoices.map((invoice) => (
-          <InvoiceCard key={invoice.id} invoice={invoice} />
+          invoice && invoice.id ? (
+            <InvoiceCard key={invoice.id} invoice={invoice} />
+          ) : null
         ))}
       </div>
       

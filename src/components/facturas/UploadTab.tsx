@@ -38,24 +38,45 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
   };
 
   const handleProcessFiles = async () => {
+    console.log("Iniciando procesamiento de archivos...");
     const result = await uploadFiles();
     
-    if (result && result.newInvoices.length > 0) {
+    if (result && result.newInvoices && result.newInvoices.length > 0) {
       console.log(`Se procesaron ${result.newInvoices.length} facturas correctamente`);
       
-      // Guardar las facturas en el estado global
-      const savedInvoices = await addInvoices(result.newInvoices);
-      setProcessedInvoices(savedInvoices);
-      
-      toast({
-        title: "Carga completada",
-        description: `Se han procesado ${result.newInvoices.length} CFDIs correctamente.`
-      });
+      try {
+        // Guardar las facturas en el estado global
+        const savedInvoices = await addInvoices(result.newInvoices);
+        console.log("Facturas guardadas:", savedInvoices);
+        
+        if (savedInvoices && savedInvoices.length > 0) {
+          setProcessedInvoices(savedInvoices);
+          
+          toast({
+            title: "Carga completada",
+            description: `Se han procesado ${result.newInvoices.length} CFDIs correctamente.`
+          });
+        } else {
+          console.warn("No se recibieron facturas guardadas");
+          toast({
+            title: "Advertencia",
+            description: "Se procesaron los archivos pero no se pudieron guardar las facturas.",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        console.error("Error al guardar las facturas:", error);
+        toast({
+          title: "Error al guardar",
+          description: "Se procesaron los archivos pero ocurrió un error al guardar las facturas.",
+          variant: "destructive"
+        });
+      }
     } else {
-      console.warn("No se encontraron XMLs válidos para procesar");
+      console.warn("No se encontraron XMLs válidos para procesar o el proceso falló");
       toast({
         title: "No se encontraron XMLs válidos",
-        description: "Ninguno de los archivos seleccionados contiene datos CFDI válidos.",
+        description: "Ninguno de los archivos seleccionados contiene datos CFDI válidos o hubo un error en el proceso.",
         variant: "destructive"
       });
     }
@@ -88,7 +109,7 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
         onClick={handleOpenFileDialog}
       />
       
-      {files.length > 0 && (
+      {files && files.length > 0 && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium">CFDIs seleccionados ({files.length})</h3>
@@ -132,7 +153,7 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
       )}
       
       <ProcessedInvoices 
-        invoices={processedInvoices} 
+        invoices={processedInvoices || []} 
         onNavigateToInvoices={onNavigateToInvoices} 
       />
     </div>

@@ -46,6 +46,11 @@ export function useUploadFiles() {
     console.log("===== INICIO PROCESAMIENTO DE ARCHIVOS =====");
     console.log(`Archivos recibidos (${newFiles.length}):`, newFiles.map(f => `${f.name} (${f.type})`));
     
+    if (!newFiles || newFiles.length === 0) {
+      console.warn("No se recibieron archivos para procesar");
+      return;
+    }
+    
     // Filtrar solo archivos XML y PDF usando la función mejorada
     const validFiles = filterValidFiles(newFiles);
     console.log(`Archivos validados (${validFiles.length}):`, validFiles.map(f => `${f.name} (${f.type})`));
@@ -98,6 +103,11 @@ export function useUploadFiles() {
   };
 
   const removeFile = (index: number) => {
+    if (index < 0 || index >= files.length) {
+      console.warn("Intento de eliminar un archivo con índice inválido:", index);
+      return;
+    }
+    
     const fileToRemove = files[index];
     setFiles(prev => prev.filter((_, i) => i !== index));
     
@@ -113,63 +123,76 @@ export function useUploadFiles() {
     console.log("===== INICIO CARGA DE ARCHIVOS =====");
     console.log(`Iniciando procesamiento de ${files.length} archivos`);
     
-    if (files.length === 0) {
+    if (!files || files.length === 0) {
       toast({
         title: "Sin archivos",
         description: "Por favor, selecciona al menos un archivo para cargar.",
         variant: "destructive"
       });
-      return;
+      return null;
     }
     
-    setUploading(true);
-    setProgress(0);
-    setProcessedInvoices([]);
-    
-    // Procesar solo archivos XML
-    const xmlFiles = files.filter(file => {
-      const isXml = isXmlFile(file);
-      console.log(`Validando archivo ${file.name}: ${isXml ? 'Es XML' : 'No es XML'}`);
-      return isXml;
-    });
-    
-    console.log(`Se encontraron ${xmlFiles.length} archivos XML de ${files.length} totales`);
-    
-    if (xmlFiles.length === 0) {
-      toast({
-        title: "Sin archivos XML",
-        description: "No hay archivos XML para procesar. Por favor, selecciona al menos un archivo XML.",
-        variant: "destructive"
+    try {
+      setUploading(true);
+      setProgress(0);
+      setProcessedInvoices([]);
+      
+      // Procesar solo archivos XML
+      const xmlFiles = files.filter(file => {
+        if (!file) return false;
+        const isXml = isXmlFile(file);
+        console.log(`Validando archivo ${file.name}: ${isXml ? 'Es XML' : 'No es XML'}`);
+        return isXml;
       });
-      setUploading(false);
-      return;
-    }
-    
-    console.log(`Procesando ${xmlFiles.length} archivos XML`);
-    const newInvoices: Invoice[] = [];
-    let processed = 0;
-    
-    // Procesar cada archivo XML
-    for (const file of xmlFiles) {
-      try {
-        console.log(`Procesando archivo XML: ${file.name}`);
-        const invoice = await processXmlFile(file);
-        console.log(`Factura procesada: ${invoice.number}, Tipo: ${invoice.cfdiType}, Monto: ${invoice.amount}`);
-        newInvoices.push(invoice);
-        
-        processed++;
-        setProgress(Math.floor((processed / xmlFiles.length) * 100));
-      } catch (error) {
-        console.error(`Error al procesar archivo ${file.name}:`, error);
+      
+      console.log(`Se encontraron ${xmlFiles.length} archivos XML de ${files.length} totales`);
+      
+      if (xmlFiles.length === 0) {
         toast({
-          title: `Error en archivo ${file.name}`,
-          description: "No se pudo procesar el archivo. Verifica que sea un XML válido.",
+          title: "Sin archivos XML",
+          description: "No hay archivos XML para procesar. Por favor, selecciona al menos un archivo XML.",
           variant: "destructive"
         });
+        setUploading(false);
+        return null;
       }
+      
+      console.log(`Procesando ${xmlFiles.length} archivos XML`);
+      const newInvoices: Invoice[] = [];
+      let processed = 0;
+      
+      // Procesar cada archivo XML
+      for (const file of xmlFiles) {
+        try {
+          console.log(`Procesando archivo XML: ${file.name}`);
+          const invoice = await processXmlFile(file);
+          console.log(`Factura procesada: ${invoice.number}, Tipo: ${invoice.cfdiType}, Monto: ${invoice.amount}`);
+          newInvoices.push(invoice);
+          
+          processed++;
+          setProgress(Math.floor((processed / xmlFiles.length) * 100));
+        } catch (error) {
+          console.error(`Error al procesar archivo ${file.name}:`, error);
+          toast({
+            title: `Error en archivo ${file.name}`,
+            description: "No se pudo procesar el archivo. Verifica que sea un XML válido.",
+            variant: "destructive"
+          });
+        }
+      }
+      
+      return { newInvoices, processedCount: processed };
+    } catch (error) {
+      console.error("Error durante el procesamiento de archivos:", error);
+      toast({
+        title: "Error al procesar archivos",
+        description: "Ocurrió un error inesperado al procesar los archivos.",
+        variant: "destructive"
+      });
+      return null;
+    } finally {
+      setUploading(false);
     }
-    
-    return { newInvoices, processedCount: processed };
   };
 
   const handleClearFiles = () => {
