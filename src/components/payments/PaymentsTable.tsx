@@ -6,6 +6,7 @@ import {
   ArrowUpRight, ArrowDownLeft,
   Eye, FileText, Trash2
 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 export type Payment = {
   id: string;
@@ -36,6 +37,30 @@ interface PaymentsTableProps {
 }
 
 export const PaymentsTable = ({ paymentList }: PaymentsTableProps) => {
+  const { toast } = useToast();
+
+  const handleViewPayment = (payment: Payment) => {
+    toast({
+      title: "Ver detalles del pago",
+      description: `${payment.type === 'incoming' ? 'Cobro' : 'Pago'} de $${payment.amount.toLocaleString('es-MX')} a ${payment.recipient}`
+    });
+  };
+
+  const handleViewInvoice = (payment: Payment) => {
+    toast({
+      title: "Ver factura relacionada",
+      description: `Mostrando factura asociada al ${payment.type === 'incoming' ? 'cobro' : 'pago'} de $${payment.amount.toLocaleString('es-MX')}`
+    });
+  };
+
+  const handleDeletePayment = (payment: Payment) => {
+    toast({
+      title: "Eliminar pago",
+      description: `¿Estás seguro que deseas eliminar este ${payment.type === 'incoming' ? 'cobro' : 'pago'}?`,
+      variant: "destructive"
+    });
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>
@@ -52,47 +77,62 @@ export const PaymentsTable = ({ paymentList }: PaymentsTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paymentList.map((payment) => (
-            <TableRow key={payment.id}>
-              <TableCell>{payment.date}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  {payment.type === 'incoming' ? (
-                    <ArrowDownLeft className="h-4 w-4 text-success" />
-                  ) : (
-                    <ArrowUpRight className="h-4 w-4 text-danger" />
-                  )}
-                  <span>{payment.type === 'incoming' ? 'Ingreso' : 'Egreso'}</span>
-                </div>
-              </TableCell>
-              <TableCell>{payment.recipient}</TableCell>
-              <TableCell>{payment.concept}</TableCell>
-              <TableCell>{payment.method}</TableCell>
-              <TableCell className="text-right font-medium">
-                ${payment.amount.toLocaleString('es-MX')}
-              </TableCell>
-              <TableCell>
-                <Badge variant="outline" className={statusColors[payment.status]}>
-                  {statusMap[payment.status]}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-1">
-                  <Button variant="ghost" size="icon" title="Ver detalles">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  {payment.invoiceId && (
-                    <Button variant="ghost" size="icon" title="Ver factura relacionada">
-                      <FileText className="h-4 w-4" />
+          {paymentList.map((payment) => {
+            const TypeIcon = payment.type === 'incoming' ? ArrowDownLeft : ArrowUpRight;
+            
+            return (
+              <TableRow key={payment.id}>
+                <TableCell>{payment.date}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <TypeIcon className={`h-4 w-4 ${payment.type === 'incoming' ? 'text-success' : 'text-danger'}`} />
+                    <span>{payment.type === 'incoming' ? 'Ingreso' : 'Egreso'}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{payment.recipient}</TableCell>
+                <TableCell>{payment.concept}</TableCell>
+                <TableCell>{payment.method}</TableCell>
+                <TableCell className="text-right font-medium">
+                  ${payment.amount.toLocaleString('es-MX')}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={statusColors[payment.status]}>
+                    {statusMap[payment.status]}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      title="Ver detalles"
+                      onClick={() => handleViewPayment(payment)}
+                    >
+                      <Eye className="h-4 w-4" />
                     </Button>
-                  )}
-                  <Button variant="ghost" size="icon" title="Eliminar">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                    {payment.invoiceId && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        title="Ver factura relacionada"
+                        onClick={() => handleViewInvoice(payment)}
+                      >
+                        <FileText className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      title="Eliminar"
+                      onClick={() => handleDeletePayment(payment)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

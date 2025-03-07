@@ -13,6 +13,8 @@ import {
   FileText, FileCog, FileX, Check 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 
 // Datos de ejemplo
 const invoices = [
@@ -111,8 +113,106 @@ const statusMap: Record<string, string> = {
 };
 
 const Facturas = () => {
-  const receiveInvoices = invoices.filter(inv => inv.type === 'receivable');
-  const payableInvoices = invoices.filter(inv => inv.type === 'payable');
+  const { toast } = useToast();
+  const [invoicesList, setInvoicesList] = useState(invoices);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
+
+  const receiveInvoices = invoicesList.filter(inv => inv.type === 'receivable');
+  const payableInvoices = invoicesList.filter(inv => inv.type === 'payable');
+  const overdueInvoices = invoicesList.filter(inv => inv.status === 'overdue');
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleFilter = () => {
+    // Filtrar facturas basado en la búsqueda
+    if (!searchQuery.trim()) {
+      setInvoicesList(invoices);
+      return;
+    }
+
+    const filtered = invoices.filter(inv => 
+      inv.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      inv.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      inv.amount.toString().includes(searchQuery)
+    );
+    
+    setInvoicesList(filtered);
+    
+    toast({
+      title: `Resultados de búsqueda`,
+      description: `Se encontraron ${filtered.length} facturas que coinciden con "${searchQuery}"`,
+    });
+  };
+
+  const handleResetFilter = () => {
+    setSearchQuery('');
+    setInvoicesList(invoices);
+  };
+
+  const handleMarkAsPaid = (invoiceId: string) => {
+    // Actualizar el estado de la factura a "pagado"
+    const updatedInvoices = invoicesList.map(inv => 
+      inv.id === invoiceId ? { ...inv, status: 'paid' } : inv
+    );
+    
+    setInvoicesList(updatedInvoices);
+    
+    toast({
+      title: "Factura marcada como pagada",
+      description: "La factura ha sido actualizada exitosamente.",
+    });
+  };
+
+  const handleViewInvoice = (invoiceId: string) => {
+    const invoice = invoicesList.find(inv => inv.id === invoiceId);
+    
+    toast({
+      title: `Vista previa de factura: ${invoice?.number}`,
+      description: `Cliente: ${invoice?.client}, Monto: $${invoice?.amount.toLocaleString('es-MX')}`,
+    });
+  };
+
+  const handleDownloadInvoice = (invoiceId: string) => {
+    const invoice = invoicesList.find(inv => inv.id === invoiceId);
+    
+    toast({
+      title: "Descargando factura",
+      description: `Descargando factura ${invoice?.number} en formato PDF.`,
+    });
+  };
+
+  const handleExportInvoices = () => {
+    toast({
+      title: "Exportando facturas",
+      description: `Se están exportando ${
+        activeTab === 'all' ? invoicesList.length : 
+        activeTab === 'receivable' ? receiveInvoices.length :
+        activeTab === 'payable' ? payableInvoices.length : 
+        overdueInvoices.length
+      } facturas a formato CSV.`,
+    });
+  };
+
+  const handleImportInvoices = () => {
+    toast({
+      title: "Importar facturas",
+      description: "Esta funcionalidad permitirá importar facturas desde un archivo CSV.",
+    });
+  };
+
+  const handleDownloadFromSAT = () => {
+    toast({
+      title: "Conectando con el SAT",
+      description: "Iniciando proceso de descarga de facturas desde el portal del SAT.",
+    });
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
 
   const renderInvoiceTable = (invoiceList: typeof invoices) => (
     <div className="border rounded-lg overflow-hidden">
@@ -145,14 +245,30 @@ const Facturas = () => {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
-                  <Button variant="ghost" size="icon" title="Ver factura">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    title="Ver factura"
+                    onClick={() => handleViewInvoice(invoice.id)}
+                  >
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" title="Descargar factura">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    title="Descargar factura"
+                    onClick={() => handleDownloadInvoice(invoice.id)}
+                  >
                     <Download className="h-4 w-4" />
                   </Button>
                   {invoice.status === 'pending' && (
-                    <Button variant="ghost" size="icon" className="text-success" title="Marcar como pagada">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-success" 
+                      title="Marcar como pagada"
+                      onClick={() => handleMarkAsPaid(invoice.id)}
+                    >
                       <Check className="h-4 w-4" />
                     </Button>
                   )}
@@ -176,13 +292,18 @@ const Facturas = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button asChild variant="outline" className="sm:w-auto">
-              <Link to="/cargar-facturas">
-                <FileUp className="mr-2 h-4 w-4" />
-                Cargar Facturas
-              </Link>
+            <Button 
+              variant="outline" 
+              className="sm:w-auto"
+              onClick={handleImportInvoices}
+            >
+              <FileUp className="mr-2 h-4 w-4" />
+              Cargar Facturas
             </Button>
-            <Button className="bg-payables-600 hover:bg-payables-700 sm:w-auto">
+            <Button 
+              className="bg-payables-600 hover:bg-payables-700 sm:w-auto"
+              onClick={handleDownloadFromSAT}
+            >
               <Download className="mr-2 h-4 w-4" />
               Descargar del SAT
             </Button>
@@ -196,19 +317,40 @@ const Facturas = () => {
               type="search"
               placeholder="Buscar por cliente, número de factura, monto..."
               className="pl-8 bg-muted/50"
+              value={searchQuery}
+              onChange={handleSearch}
+              onKeyDown={(e) => e.key === 'Enter' && handleFilter()}
             />
           </div>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={handleFilter}
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="outline" 
+              className="ml-2"
+              onClick={handleExportInvoices}
+            >
+              Exportar
+            </Button>
+          </div>
         </div>
         
-        <Tabs defaultValue="all" className="w-full">
+        <Tabs 
+          defaultValue="all" 
+          className="w-full"
+          value={activeTab}
+          onValueChange={handleTabChange}
+        >
           <TabsList className="grid grid-cols-4 mb-4 w-full sm:w-auto">
             <TabsTrigger value="all" className="flex gap-2 items-center">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Todas</span>
-              <Badge variant="outline" className="ml-auto">{invoices.length}</Badge>
+              <Badge variant="outline" className="ml-auto">{invoicesList.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="receivable" className="flex gap-2 items-center">
               <FileCog className="h-4 w-4" />
@@ -224,13 +366,13 @@ const Facturas = () => {
               <FileX className="h-4 w-4" />
               <span className="hidden sm:inline">Vencidas</span>
               <Badge variant="outline" className="ml-auto">
-                {invoices.filter(inv => inv.status === 'overdue').length}
+                {overdueInvoices.length}
               </Badge>
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="all" className="mt-0">
-            {renderInvoiceTable(invoices)}
+            {renderInvoiceTable(invoicesList)}
           </TabsContent>
           
           <TabsContent value="receivable" className="mt-0">
@@ -242,7 +384,7 @@ const Facturas = () => {
           </TabsContent>
           
           <TabsContent value="overdue" className="mt-0">
-            {renderInvoiceTable(invoices.filter(inv => inv.status === 'overdue'))}
+            {renderInvoiceTable(overdueInvoices)}
           </TabsContent>
         </Tabs>
       </div>

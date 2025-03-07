@@ -8,14 +8,17 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from 'react-router-dom';
 
 export function UploadInvoice() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [cfdiTypes, setCfdiTypes] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState('upload');
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -115,6 +118,11 @@ export function UploadInvoice() {
             description: `Se han procesado ${files.length} CFDIs correctamente.`
           });
           
+          // Redireccionar después de una carga exitosa
+          setTimeout(() => {
+            navigate('/facturas');
+          }, 1500);
+          
           // Limpiar archivos después de la carga
           setFiles([]);
           setCfdiTypes({});
@@ -123,6 +131,26 @@ export function UploadInvoice() {
         return prev + 10;
       });
     }, 500);
+  };
+
+  const handleClearFiles = () => {
+    setFiles([]);
+    setCfdiTypes({});
+    toast({
+      title: "Lista de archivos limpiada",
+      description: "Se han eliminado todos los archivos seleccionados."
+    });
+  };
+
+  const configureConnection = () => {
+    toast({
+      title: "Configuración SAT",
+      description: "Se abrirá el formulario para configurar la conexión con el SAT."
+    });
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
   };
 
   const fileIcon = (fileName: string) => {
@@ -173,7 +201,11 @@ export function UploadInvoice() {
         <CardTitle className="text-xl">Cargar Facturas (CFDI)</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="upload">
+        <Tabs 
+          defaultValue="upload" 
+          value={activeTab} 
+          onValueChange={handleTabChange}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="upload">Carga Manual</TabsTrigger>
             <TabsTrigger value="sat">Descarga SAT</TabsTrigger>
@@ -219,10 +251,7 @@ export function UploadInvoice() {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => {
-                      setFiles([]);
-                      setCfdiTypes({});
-                    }}
+                    onClick={handleClearFiles}
                     disabled={uploading}
                   >
                     Limpiar
@@ -291,6 +320,7 @@ export function UploadInvoice() {
               </p>
               <Button 
                 className="mt-6 bg-payables-600 hover:bg-payables-700"
+                onClick={configureConnection}
               >
                 Configurar Conexión SAT
               </Button>

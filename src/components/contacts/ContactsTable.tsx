@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { 
   Table, 
@@ -23,12 +22,15 @@ import { Contact } from '@/data/contacts';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { es } from 'date-fns/locale';
+import { useToast } from '@/components/ui/use-toast';
 
 interface ContactsTableProps {
   contacts: Contact[];
 }
 
 export const ContactsTable = ({ contacts }: ContactsTableProps) => {
+  const { toast } = useToast();
+
   const getTypeIcon = (type: Contact['type']) => {
     switch (type) {
       case 'client':
@@ -61,6 +63,28 @@ export const ContactsTable = ({ contacts }: ContactsTableProps) => {
     ) : (
       <Badge variant="outline" className="bg-gray-100 text-gray-800 hover:bg-gray-100">Inactivo</Badge>
     );
+  };
+
+  const handleViewContact = (contact: Contact) => {
+    toast({
+      title: "Ver contacto",
+      description: `Mostrando detalles de ${contact.name} (${getTypeName(contact.type)})`,
+    });
+  };
+
+  const handleEditContact = (contact: Contact) => {
+    toast({
+      title: "Editar contacto",
+      description: `Editando información de ${contact.name}`,
+    });
+  };
+
+  const handleDeleteContact = (contact: Contact) => {
+    toast({
+      title: "Eliminar contacto",
+      description: `¿Estás seguro que deseas eliminar a ${contact.name}?`,
+      variant: "destructive",
+    });
   };
 
   return (
@@ -111,13 +135,28 @@ export const ContactsTable = ({ contacts }: ContactsTableProps) => {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button size="icon" variant="ghost" className="h-8 w-8">
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="h-8 w-8"
+                    onClick={() => handleViewContact(contact)}
+                  >
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8">
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="h-8 w-8"
+                    onClick={() => handleEditContact(contact)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500">
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="h-8 w-8 text-red-500"
+                    onClick={() => handleDeleteContact(contact)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
