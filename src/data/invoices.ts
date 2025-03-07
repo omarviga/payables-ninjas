@@ -16,8 +16,61 @@ export interface Invoice {
   relatedDocuments?: string[];  // Documentos relacionados (UUID)
 }
 
-// Inicializamos con un array vacío, sin datos de ejemplo
-export const invoices: Invoice[] = [];
+// Facturas de ejemplo para pruebas
+export const invoices: Invoice[] = [
+  {
+    id: 'inv-001',
+    number: 'A-001',
+    client: 'Distribuidora Nacional S.A.',
+    amount: 12500,
+    date: '15/05/2023',
+    dueDate: '15/06/2023',
+    status: 'paid',
+    type: 'receivable',
+    cfdiType: CfdiType.INGRESO,
+    uuid: 'UUID-001-1234567890',
+    relatedDocuments: []
+  },
+  {
+    id: 'inv-002',
+    number: 'A-002',
+    client: 'Cliente Nuevo S.A.',
+    amount: 8500,
+    date: '20/05/2023',
+    dueDate: '20/06/2023',
+    status: 'pending',
+    type: 'receivable',
+    cfdiType: CfdiType.INGRESO,
+    uuid: 'UUID-002-0987654321',
+    relatedDocuments: []
+  },
+  {
+    id: 'prov-001',
+    number: 'B-001',
+    client: 'Suministros Industriales',
+    amount: 9750,
+    date: '10/05/2023',
+    dueDate: '10/06/2023',
+    status: 'pending',
+    type: 'payable',
+    cfdiType: CfdiType.INGRESO,
+    uuid: 'UUID-003-5678901234',
+    relatedDocuments: []
+  },
+  {
+    id: 'prov-002',
+    number: 'B-002',
+    client: 'Proveedor de Servicios',
+    amount: 5000,
+    date: '05/05/2023',
+    dueDate: '05/06/2023',
+    status: 'overdue',
+    type: 'payable',
+    cfdiType: CfdiType.INGRESO,
+    uuid: 'UUID-004-2345678901',
+    relatedDocuments: []
+  }
+];
 
 // Función para agregar nuevas facturas al sistema
 export const addInvoices = (newInvoices: Invoice[]) => {

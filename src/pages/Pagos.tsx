@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
 import { PaymentsTable } from '@/components/payments/PaymentsTable';
 import { PaymentsSummaryCards } from '@/components/payments/PaymentsSummaryCards';
 import { PaymentsFilterBar } from '@/components/payments/PaymentsFilterBar';
@@ -27,27 +26,25 @@ const Pagos = () => {
   const balance = totalIncoming - totalOutgoing;
 
   return (
-    <MainLayout>
-      <div className="flex flex-col gap-6">
-        <PaymentsHeader />
-        
-        <PaymentsSummaryCards 
-          totalIncoming={totalIncoming}
-          totalOutgoing={totalOutgoing}
-          balance={balance}
-        />
-        
-        <PaymentsFilterBar 
-          onFilterChange={setSearchTerm}
-        />
-        
-        <PaymentsTabs 
-          payments={filteredPayments}
-          incomingPayments={incomingPayments}
-          outgoingPayments={outgoingPayments}
-        />
-      </div>
-    </MainLayout>
+    <div className="flex flex-col gap-6">
+      <PaymentsHeader />
+      
+      <PaymentsSummaryCards 
+        totalIncoming={totalIncoming}
+        totalOutgoing={totalOutgoing}
+        balance={balance}
+      />
+      
+      <PaymentsFilterBar 
+        onFilterChange={setSearchTerm}
+      />
+      
+      <PaymentsTabs 
+        payments={filteredPayments}
+        incomingPayments={incomingPayments}
+        outgoingPayments={outgoingPayments}
+      />
+    </div>
   );
 };
 
