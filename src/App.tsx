@@ -1,38 +1,31 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Facturas from "./pages/Facturas";
-import CargarFacturas from "./pages/CargarFacturas";
-import Pagos from "./pages/Pagos";
-import Conciliacion from "./pages/Conciliacion";
-import Informes from "./pages/Informes";
-import NotFound from "./pages/NotFound";
+import { Routes, Route } from 'react-router-dom';
+import { MainLayout } from './components/layout/MainLayout';
+import Index from './pages/Index';
+import Facturas from './pages/Facturas';
+import CargarFacturas from './pages/CargarFacturas';
+import Pagos from './pages/Pagos';
+import Conciliacion from './pages/Conciliacion';
+import Informes from './pages/Informes';
+import Contactos from './pages/Contactos';
+import NotFound from './pages/NotFound';
+import './App.css';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/facturas" element={<Facturas />} />
-          <Route path="/cargar-facturas" element={<CargarFacturas />} />
-          <Route path="/pagos" element={<Pagos />} />
-          <Route path="/conciliacion" element={<Conciliacion />} />
-          <Route path="/informes" element={<Informes />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Index />} />
+        <Route path="facturas" element={<Facturas />} />
+        <Route path="cargar-facturas" element={<CargarFacturas />} />
+        <Route path="pagos" element={<Pagos />} />
+        <Route path="conciliacion" element={<Conciliacion />} />
+        <Route path="informes" element={<Informes />} />
+        <Route path="contactos" element={<Contactos />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
+  );
+}
 
 export default App;
