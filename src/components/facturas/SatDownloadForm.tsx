@@ -10,6 +10,7 @@ import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 
 interface SatDownloadFormProps {
   onNavigateToInvoices: () => void;
@@ -18,6 +19,8 @@ interface SatDownloadFormProps {
 export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadStatus, setDownloadStatus] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(new Date().setDate(1)),
     to: new Date()
@@ -40,27 +43,51 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
 
   const handleDownload = async () => {
     setLoading(true);
+    setDownloadProgress(0);
+    setDownloadStatus("Conectando con el SAT...");
     
-    // Simulación de descarga
     toast({
       title: "Conectando con el SAT",
       description: "Iniciando descarga de facturas...",
     });
     
-    // Simulamos una espera
+    // Simulación del proceso de descarga con actualizaciones visuales
+    await simulateDownloadSteps();
+    
+    setLoading(false);
+    setDownloadProgress(100);
+    setDownloadStatus("¡Descarga completada!");
+    
+    toast({
+      title: "Descarga exitosa",
+      description: "Se han descargado 12 facturas del SAT",
+      variant: "default", 
+    });
+    
+    // Redirigir a la sección de facturas
     setTimeout(() => {
-      toast({
-        title: "Descarga exitosa",
-        description: "Se han descargado 12 facturas del SAT",
-        variant: "default", // Changed from "success" to "default"
-      });
-      setLoading(false);
-      
-      // Redirigir a la sección de facturas
-      setTimeout(() => {
-        onNavigateToInvoices();
-      }, 1500);
-    }, 3000);
+      onNavigateToInvoices();
+    }, 1500);
+  };
+
+  // Simula los pasos de descarga con actualizaciones de progreso
+  const simulateDownloadSteps = async () => {
+    const steps = [
+      { progress: 10, status: "Autenticando con el SAT...", delay: 500 },
+      { progress: 20, status: "Buscando facturas disponibles...", delay: 800 },
+      { progress: 30, status: "Encontradas 12 facturas para descargar", delay: 500 },
+      { progress: 40, status: "Descargando facturas emitidas...", delay: 700 },
+      { progress: 60, status: "Descargando complementos de pago...", delay: 800 },
+      { progress: 80, status: "Procesando documentos XML...", delay: 600 },
+      { progress: 90, status: "Validando documentos fiscales...", delay: 500 },
+      { progress: 95, status: "Guardando en su base de datos...", delay: 600 }
+    ];
+
+    for (const step of steps) {
+      setDownloadProgress(step.progress);
+      setDownloadStatus(step.status);
+      await new Promise(resolve => setTimeout(resolve, step.delay));
+    }
   };
 
   return (
@@ -103,6 +130,16 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
                 </SelectContent>
               </Select>
             </div>
+            
+            {loading && (
+              <div className="space-y-2 py-2">
+                <div className="flex justify-between text-sm mb-1">
+                  <span>{downloadStatus}</span>
+                  <span>{downloadProgress}%</span>
+                </div>
+                <Progress value={downloadProgress} className="h-2" />
+              </div>
+            )}
             
             <div className="pt-4">
               <Button 
