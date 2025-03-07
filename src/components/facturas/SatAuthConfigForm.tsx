@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, LockKeyhole, RefreshCw, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -29,9 +28,25 @@ export function SatAuthConfigForm({ onSuccess, onCancel, open }: SatAuthConfigFo
     setCredentials((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validateRFC = (rfc: string): boolean => {
+    const rfcPattern = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+    return rfcPattern.test(rfc);
+  };
+
   const handleSubmitCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Validar RFC
+    if (!validateRFC(credentials.rfc)) {
+      toast({
+        title: "Error",
+        description: "El RFC ingresado no es válido.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
 
     // Simulación de conexión
     toast({
@@ -50,6 +65,17 @@ export function SatAuthConfigForm({ onSuccess, onCancel, open }: SatAuthConfigFo
     e.preventDefault();
     setLoading(true);
 
+    // Validar CAPTCHA
+    if (credentials.captcha.trim() === '') {
+      toast({
+        title: "Error",
+        description: "El código CAPTCHA no puede estar vacío.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     // Simulación de verificación de CAPTCHA
     toast({
       title: "Verificando CAPTCHA",
@@ -60,13 +86,19 @@ export function SatAuthConfigForm({ onSuccess, onCancel, open }: SatAuthConfigFo
     setTimeout(() => {
       setLoading(false);
       setStep('success');
-      
-      // Guardar credenciales en localStorage para simular la persistencia
-      localStorage.setItem('satCredentials', JSON.stringify({
+
+      // Simulación de almacenamiento seguro (en una aplicación real se usaría sessionStorage o un servicio seguro)
+      const authData = {
         rfc: credentials.rfc,
         authenticated: true,
-        timestamp: new Date().toISOString()
-      }));
+        timestamp: new Date().toISOString(),
+      };
+      
+      // Para mantener la funcionalidad existente, guardamos en localStorage
+      // En producción, reemplazar con una solución más segura
+      localStorage.setItem('satCredentials', JSON.stringify(authData));
+      
+      console.log("Credenciales autenticadas:", authData);
 
       toast({
         title: "Conexión exitosa",
@@ -98,6 +130,7 @@ export function SatAuthConfigForm({ onSuccess, onCancel, open }: SatAuthConfigFo
                   required
                 />
               </div>
+              <p className="text-xs text-muted-foreground">Formato: 3-4 letras + 6 dígitos + 3 caracteres</p>
             </div>
             
             <div className="space-y-2">
@@ -152,6 +185,18 @@ export function SatAuthConfigForm({ onSuccess, onCancel, open }: SatAuthConfigFo
                 placeholder="Ingresa el código que ves arriba"
                 required
               />
+              <div className="flex justify-end">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-xs"
+                  onClick={() => setCredentials(prev => ({ ...prev, captcha: '' }))}
+                >
+                  <RefreshCw className="mr-1 h-3 w-3" />
+                  Cambiar CAPTCHA
+                </Button>
+              </div>
             </div>
             
             <Button 
