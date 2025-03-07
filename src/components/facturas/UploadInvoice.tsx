@@ -12,7 +12,8 @@ import { DropZone } from './DropZone';
 import { FileList } from './FileList';
 import { ProcessedInvoices } from './ProcessedInvoices';
 import { SatDownloadTab } from './SatDownloadTab';
-import { processXmlFile, detectCfdiType, filterValidFiles } from '@/services/invoiceProcessor';
+import { processXmlFile, detectCfdiType } from '@/services/invoiceProcessor';
+import { filterValidFiles, isXmlFile } from '@/services/util/fileValidator';
 
 export function UploadInvoice() {
   const { toast } = useToast();
@@ -51,7 +52,7 @@ export function UploadInvoice() {
   };
 
   const handleFiles = (newFiles: File[]) => {
-    // Filtrar solo archivos XML y PDF
+    // Filtrar solo archivos XML y PDF usando la función mejorada
     const validFiles = filterValidFiles(newFiles);
     
     if (validFiles.length !== newFiles.length) {
@@ -62,17 +63,32 @@ export function UploadInvoice() {
       });
     }
     
+    if (validFiles.length === 0) {
+      toast({
+        title: "Sin archivos válidos",
+        description: "Ninguno de los archivos seleccionados es un XML o PDF válido.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Detectar tipo de CFDI para los archivos XML
     const updatedCfdiTypes = { ...cfdiTypes };
     
     validFiles.forEach(file => {
-      if (file.name.endsWith('.xml')) {
+      if (isXmlFile(file)) {
         updatedCfdiTypes[file.name] = detectCfdiType(file.name);
       }
     });
     
     setCfdiTypes(updatedCfdiTypes);
     setFiles(prev => [...prev, ...validFiles]);
+    
+    // Mostrar mensaje de éxito
+    toast({
+      title: "Archivos seleccionados",
+      description: `Se han añadido ${validFiles.length} archivos a la lista.`
+    });
   };
 
   const removeFile = (index: number) => {
@@ -102,12 +118,18 @@ export function UploadInvoice() {
     setProgress(0);
     setProcessedInvoices([]);
     
-    // Procesar solo archivos XML
-    const xmlFiles = files.filter(file => 
-      file.type === 'application/xml' || 
-      file.type === 'text/xml' || 
-      file.name.endsWith('.xml')
-    );
+    // Procesar solo archivos XML usando la función mejorada
+    const xmlFiles = files.filter(file => isXmlFile(file));
+    
+    if (xmlFiles.length === 0) {
+      toast({
+        title: "Sin archivos XML",
+        description: "No hay archivos XML para procesar. Por favor, selecciona al menos un archivo XML.",
+        variant: "destructive"
+      });
+      setUploading(false);
+      return;
+    }
     
     console.log(`Procesando ${xmlFiles.length} archivos XML`);
     const newInvoices: Invoice[] = [];
@@ -124,6 +146,11 @@ export function UploadInvoice() {
         setProgress(Math.floor((processed / xmlFiles.length) * 100));
       } catch (error) {
         console.error(`Error al procesar archivo ${file.name}:`, error);
+        toast({
+          title: `Error en archivo ${file.name}`,
+          description: "No se pudo procesar el archivo. Verifica que sea un XML válido.",
+          variant: "destructive"
+        });
       }
     }
     
