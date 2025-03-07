@@ -17,6 +17,8 @@ const Facturas = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [error, setError] = useState<string | null>(null);
 
+  console.log("Renderizando página Facturas");
+
   // Cargar todas las facturas al montar el componente
   useEffect(() => {
     const loadInvoices = async () => {
@@ -28,7 +30,14 @@ const Facturas = () => {
         await initInvoices();
         const invoices = getAllInvoices();
         console.log("Facturas cargadas:", invoices.length, invoices);
-        setInvoicesList(invoices);
+        
+        // Asegurarnos de que tenemos un array válido
+        if (Array.isArray(invoices)) {
+          setInvoicesList(invoices);
+        } else {
+          console.warn("getAllInvoices no devolvió un array válido:", invoices);
+          setInvoicesList([]);
+        }
       } catch (error) {
         console.error("Error al cargar facturas:", error);
         setError("No se pudieron cargar las facturas");
@@ -37,6 +46,8 @@ const Facturas = () => {
           description: "No se pudieron cargar las facturas. Intenta de nuevo más tarde.",
           variant: "destructive"
         });
+        // Asegurarnos de que tenemos un array válido incluso en caso de error
+        setInvoicesList([]);
       } finally {
         setLoading(false);
       }
@@ -59,21 +70,34 @@ const Facturas = () => {
   }, [toast]);
 
   // Asegurarnos de que tengamos valores por defecto para evitar errores
-  const receiveInvoices = invoicesList?.filter(inv => inv.type === 'receivable') || [];
-  const payableInvoices = invoicesList?.filter(inv => inv.type === 'payable') || [];
-  const overdueInvoices = invoicesList?.filter(inv => inv.status === 'overdue') || [];
+  const receiveInvoices = invoicesList?.filter(inv => inv?.type === 'receivable') || [];
+  const payableInvoices = invoicesList?.filter(inv => inv?.type === 'payable') || [];
+  const overdueInvoices = invoicesList?.filter(inv => inv?.status === 'overdue') || [];
+
+  console.log("Actualizando datos de facturas:", {
+    all: invoicesList?.length || 0,
+    receivable: receiveInvoices?.length || 0,
+    payable: payableInvoices?.length || 0,
+    overdue: overdueInvoices?.length || 0
+  });
 
   const handleFilter = (searchQuery: string) => {
     if (!searchQuery.trim()) {
-      setInvoicesList(getAllInvoices());
+      const allInvoices = getAllInvoices();
+      setInvoicesList(Array.isArray(allInvoices) ? allInvoices : []);
       return;
     }
 
     const allInvoices = getAllInvoices();
+    if (!Array.isArray(allInvoices)) {
+      console.warn("getAllInvoices no devolvió un array válido en handleFilter:", allInvoices);
+      return;
+    }
+
     const filtered = allInvoices.filter(inv => 
-      inv.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inv.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inv.amount.toString().includes(searchQuery)
+      inv?.number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      inv?.client?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      inv?.amount?.toString().includes(searchQuery)
     );
     
     setInvoicesList(filtered);
@@ -85,7 +109,8 @@ const Facturas = () => {
   };
 
   const handleResetFilter = () => {
-    setInvoicesList(getAllInvoices());
+    const allInvoices = getAllInvoices();
+    setInvoicesList(Array.isArray(allInvoices) ? allInvoices : []);
   };
 
   const handleMarkAsPaid = async (invoiceId: string) => {
@@ -95,7 +120,7 @@ const Facturas = () => {
       if (success) {
         // Actualizar la lista local
         const updatedInvoices = invoicesList.map(inv => 
-          inv.id === invoiceId ? { ...inv, status: 'paid' as const } : inv
+          inv?.id === invoiceId ? { ...inv, status: 'paid' as const } : inv
         );
         setInvoicesList(updatedInvoices);
         
@@ -121,20 +146,20 @@ const Facturas = () => {
   };
 
   const handleViewInvoice = (invoiceId: string) => {
-    const invoice = invoicesList.find(inv => inv.id === invoiceId);
+    const invoice = invoicesList.find(inv => inv?.id === invoiceId);
     
     toast({
-      title: `Vista previa de factura: ${invoice?.number}`,
-      description: `Cliente: ${invoice?.client}, Monto: $${invoice?.amount.toLocaleString('es-MX')}`,
+      title: `Vista previa de factura: ${invoice?.number || 'Sin número'}`,
+      description: `Cliente: ${invoice?.client || 'Desconocido'}, Monto: $${invoice?.amount?.toLocaleString('es-MX') || '0'}`,
     });
   };
 
   const handleDownloadInvoice = (invoiceId: string) => {
-    const invoice = invoicesList.find(inv => inv.id === invoiceId);
+    const invoice = invoicesList.find(inv => inv?.id === invoiceId);
     
     toast({
       title: "Descargando factura",
-      description: `Descargando factura ${invoice?.number} en formato PDF.`,
+      description: `Descargando factura ${invoice?.number || 'Sin número'} en formato PDF.`,
     });
   };
 

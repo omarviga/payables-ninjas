@@ -107,6 +107,11 @@ const getExampleInvoices = (): Invoice[] => {
 
 // Función para agregar nuevas facturas al sistema
 export const addInvoices = async (newInvoices: Invoice[]): Promise<Invoice[]> => {
+  if (!newInvoices || !Array.isArray(newInvoices) || newInvoices.length === 0) {
+    console.warn("Se intentó añadir facturas inválidas:", newInvoices);
+    return [];
+  }
+  
   console.log("Agregando nuevas facturas al sistema:", newInvoices.length);
   
   // Agregar IDs únicos si no los tienen
@@ -121,7 +126,7 @@ export const addInvoices = async (newInvoices: Invoice[]): Promise<Invoice[]> =>
     // Guardar en Supabase
     const savedInvoices = await addInvoicesToDb(invoicesWithIds);
     
-    if (savedInvoices.length > 0) {
+    if (savedInvoices && savedInvoices.length > 0) {
       // Actualizar la caché local
       invoices = [...invoices, ...savedInvoices];
       console.log("Facturas guardadas en Supabase:", savedInvoices.length);
@@ -142,6 +147,11 @@ export const addInvoices = async (newInvoices: Invoice[]): Promise<Invoice[]> =>
 
 // Función para actualizar una factura
 export const updateInvoiceStatus = async (invoiceId: string, status: "paid" | "pending" | "overdue"): Promise<boolean> => {
+  if (!invoiceId) {
+    console.error("Se intentó actualizar una factura sin ID");
+    return false;
+  }
+  
   // Buscar la factura en la caché local
   const invoice = invoices.find(inv => inv.id === invoiceId);
   if (!invoice) {
