@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { FacturasHeader } from '@/components/facturas/FacturasHeader';
@@ -6,15 +5,14 @@ import { FacturasFilterBar } from '@/components/facturas/FacturasFilterBar';
 import { InvoiceTabs } from '@/components/facturas/InvoiceTabs';
 import { getAllInvoices } from '@/data/invoices';
 import type { Invoice } from '@/components/facturas/InvoiceTable';
+import { FileText } from 'lucide-react';
 
 const Facturas = () => {
   const { toast } = useToast();
   const [invoicesList, setInvoicesList] = useState<Invoice[]>([]);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Cargar facturas al iniciar
   useEffect(() => {
-    // Obtener las facturas del sistema
     const invoices = getAllInvoices();
     setInvoicesList(invoices);
   }, []);
@@ -24,7 +22,6 @@ const Facturas = () => {
   const overdueInvoices = invoicesList.filter(inv => inv.status === 'overdue');
 
   const handleFilter = (searchQuery: string) => {
-    // Filtrar facturas basado en la búsqueda
     if (!searchQuery.trim()) {
       setInvoicesList(getAllInvoices());
       return;
@@ -50,7 +47,6 @@ const Facturas = () => {
   };
 
   const handleMarkAsPaid = (invoiceId: string) => {
-    // Actualizar el estado de la factura a "pagado"
     const updatedInvoices = invoicesList.map(inv => 
       inv.id === invoiceId ? { ...inv, status: 'paid' as const } : inv
     );
