@@ -1,15 +1,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CategoryPieChart } from "../categories/CategoryPieChart";
+import { CategoryBarChart } from "../categories/CategoryBarChart";
+import { TopCategoriesTable } from "../categories/TopCategoriesTable";
 
 export function CategoriesTabContent() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Análisis por Categorías</CardTitle>
-      </CardHeader>
-      <CardContent className="h-96 flex items-center justify-center bg-muted/50 text-muted-foreground">
-        Análisis por categorías próximamente
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <CategoryPieChart />
+        <CategoryBarChart />
+      </div>
+      
+      <TopCategoriesTable />
+    </div>
   );
 }
