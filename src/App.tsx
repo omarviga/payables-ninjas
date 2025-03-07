@@ -1,6 +1,6 @@
 
 import { Routes, Route } from 'react-router-dom';
-import { MainLayout } from './components/layout/MainLayout';
+import MainLayout from './components/layout/MainLayout';
 import Index from './pages/Index';
 import Facturas from './pages/Facturas';
 import CargarFacturas from './pages/CargarFacturas';
