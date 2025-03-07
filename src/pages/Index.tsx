@@ -1,3 +1,4 @@
+
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { InvoicesSummary } from '@/components/dashboard/InvoicesSummary';
