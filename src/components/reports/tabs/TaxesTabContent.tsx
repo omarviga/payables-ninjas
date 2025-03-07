@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { payments, TaxCategory } from '@/data/payments';
+import { FileWarning } from 'lucide-react';
 
 // Colores para las categorías de impuestos
 const TAX_COLORS = {
@@ -14,6 +15,22 @@ const TAX_COLORS = {
 };
 
 export function TaxesTabContent() {
+  // Verificar si hay datos disponibles
+  const hasData = payments.length > 0 && payments.some(p => p.taxes && p.taxes.length > 0);
+  
+  // Si no hay datos, mostrar mensaje
+  if (!hasData) {
+    return (
+      <div className="flex flex-col items-center justify-center p-10 text-center space-y-4">
+        <FileWarning className="h-16 w-16 text-muted-foreground" />
+        <h3 className="text-xl font-medium">No hay datos de impuestos disponibles</h3>
+        <p className="text-muted-foreground max-w-md">
+          Registra pagos con información de impuestos para visualizar el informe de impuestos.
+        </p>
+      </div>
+    );
+  }
+
   // Calcular totales por categoría de impuesto
   const calculateTaxTotals = () => {
     const totals: Record<TaxCategory, number> = {
@@ -207,28 +224,36 @@ export function TaxesTabContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {payments.map((payment) => {
-                // Calcular montos de impuestos por categoría
-                const iva = payment.taxes?.find(t => t.category === 'IVA')?.amount || 0;
-                const isr = payment.taxes?.find(t => t.category === 'ISR')?.amount || 0;
-                const ieps = payment.taxes?.find(t => t.category === 'IEPS')?.amount || 0;
-                const totalTax = (payment.taxes || []).reduce((sum, tax) => sum + tax.amount, 0);
-                
-                return (
-                  <TableRow key={payment.id}>
-                    <TableCell>{payment.date}</TableCell>
-                    <TableCell>{payment.concept}</TableCell>
-                    <TableCell>
-                      {payment.type === 'incoming' ? 'Ingreso' : 'Egreso'}
-                    </TableCell>
-                    <TableCell>${payment.amount.toLocaleString()}</TableCell>
-                    <TableCell>${iva.toLocaleString()}</TableCell>
-                    <TableCell>${isr.toLocaleString()}</TableCell>
-                    <TableCell>${ieps.toLocaleString()}</TableCell>
-                    <TableCell className="font-medium">${totalTax.toLocaleString()}</TableCell>
-                  </TableRow>
-                );
-              })}
+              {payments.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+                    No hay datos disponibles
+                  </TableCell>
+                </TableRow>
+              ) : (
+                payments.map((payment) => {
+                  // Calcular montos de impuestos por categoría
+                  const iva = payment.taxes?.find(t => t.category === 'IVA')?.amount || 0;
+                  const isr = payment.taxes?.find(t => t.category === 'ISR')?.amount || 0;
+                  const ieps = payment.taxes?.find(t => t.category === 'IEPS')?.amount || 0;
+                  const totalTax = (payment.taxes || []).reduce((sum, tax) => sum + tax.amount, 0);
+                  
+                  return (
+                    <TableRow key={payment.id}>
+                      <TableCell>{payment.date}</TableCell>
+                      <TableCell>{payment.concept}</TableCell>
+                      <TableCell>
+                        {payment.type === 'incoming' ? 'Ingreso' : 'Egreso'}
+                      </TableCell>
+                      <TableCell>${payment.amount.toLocaleString()}</TableCell>
+                      <TableCell>${iva.toLocaleString()}</TableCell>
+                      <TableCell>${isr.toLocaleString()}</TableCell>
+                      <TableCell>${ieps.toLocaleString()}</TableCell>
+                      <TableCell className="font-medium">${totalTax.toLocaleString()}</TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         </CardContent>
