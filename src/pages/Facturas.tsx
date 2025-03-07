@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { FacturasHeader } from '@/components/facturas/FacturasHeader';
 import { FacturasFilterBar } from '@/components/facturas/FacturasFilterBar';
 import { InvoiceTabs } from '@/components/facturas/InvoiceTabs';
-import { getAllInvoices } from '@/data/invoices';
+import { getAllInvoices, initInvoices, updateInvoiceStatus } from '@/data/invoices';
 import type { Invoice } from '@/data/invoices';
 import { FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,14 +12,28 @@ const Facturas = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [invoicesList, setInvoicesList] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
   // Cargar todas las facturas al montar el componente
   useEffect(() => {
-    const loadInvoices = () => {
-      const invoices = getAllInvoices();
-      console.log("Facturas: Cargando facturas, cantidad:", invoices.length);
-      setInvoicesList(invoices);
+    const loadInvoices = async () => {
+      setLoading(true);
+      try {
+        await initInvoices();
+        const invoices = getAllInvoices();
+        console.log("Facturas: Cargando facturas, cantidad:", invoices.length);
+        setInvoicesList(invoices);
+      } catch (error) {
+        console.error("Error al cargar facturas:", error);
+        toast({
+          title: "Error al cargar facturas",
+          description: "No se pudieron cargar las facturas. Intenta de nuevo más tarde.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadInvoices();
@@ -37,7 +50,7 @@ const Facturas = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [toast]);
 
   const receiveInvoices = invoicesList.filter(inv => inv.type === 'receivable');
   const payableInvoices = invoicesList.filter(inv => inv.type === 'payable');
@@ -68,17 +81,36 @@ const Facturas = () => {
     setInvoicesList(getAllInvoices());
   };
 
-  const handleMarkAsPaid = (invoiceId: string) => {
-    const updatedInvoices = invoicesList.map(inv => 
-      inv.id === invoiceId ? { ...inv, status: 'paid' as const } : inv
-    );
-    
-    setInvoicesList(updatedInvoices);
-    
-    toast({
-      title: "Factura marcada como pagada",
-      description: "La factura ha sido actualizada exitosamente.",
-    });
+  const handleMarkAsPaid = async (invoiceId: string) => {
+    try {
+      const success = await updateInvoiceStatus(invoiceId, 'paid');
+      
+      if (success) {
+        // Actualizar la lista local
+        const updatedInvoices = invoicesList.map(inv => 
+          inv.id === invoiceId ? { ...inv, status: 'paid' as const } : inv
+        );
+        setInvoicesList(updatedInvoices);
+        
+        toast({
+          title: "Factura marcada como pagada",
+          description: "La factura ha sido actualizada exitosamente.",
+        });
+      } else {
+        toast({
+          title: "Error al actualizar factura",
+          description: "No se pudo marcar la factura como pagada. Intenta de nuevo más tarde.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error al marcar factura como pagada:", error);
+      toast({
+        title: "Error al actualizar factura",
+        description: "Ocurrió un error al intentar actualizar la factura.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleViewInvoice = (invoiceId: string) => {
@@ -129,25 +161,37 @@ const Facturas = () => {
         onExport={handleExportInvoices}
       />
       
-      <InvoiceTabs 
-        allInvoices={invoicesList}
-        receiveInvoices={receiveInvoices}
-        payableInvoices={payableInvoices}
-        overdueInvoices={overdueInvoices}
-        onViewInvoice={handleViewInvoice}
-        onDownloadInvoice={handleDownloadInvoice}
-        onMarkAsPaid={handleMarkAsPaid}
-        onTabChange={handleTabChange}
-      />
-      
-      {invoicesList.length === 0 && (
-        <div className="text-center py-12 border rounded-lg bg-gray-50">
-          <FileText className="w-12 h-12 mx-auto text-muted-foreground" />
-          <h3 className="mt-4 text-lg font-medium">No hay facturas disponibles</h3>
-          <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-            Utiliza el botón "Cargar Facturas" para subir tus primeros CFDIs o configura la conexión con el SAT.
-          </p>
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="rounded-full bg-slate-200 h-12 w-12 mb-4"></div>
+            <div className="h-4 bg-slate-200 rounded w-32 mb-2"></div>
+            <div className="h-3 bg-slate-200 rounded w-24"></div>
+          </div>
         </div>
+      ) : (
+        <>
+          <InvoiceTabs 
+            allInvoices={invoicesList}
+            receiveInvoices={receiveInvoices}
+            payableInvoices={payableInvoices}
+            overdueInvoices={overdueInvoices}
+            onViewInvoice={handleViewInvoice}
+            onDownloadInvoice={handleDownloadInvoice}
+            onMarkAsPaid={handleMarkAsPaid}
+            onTabChange={handleTabChange}
+          />
+          
+          {invoicesList.length === 0 && (
+            <div className="text-center py-12 border rounded-lg bg-gray-50">
+              <FileText className="w-12 h-12 mx-auto text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-medium">No hay facturas disponibles</h3>
+              <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+                Utiliza el botón "Cargar Facturas" para subir tus primeros CFDIs o configura la conexión con el SAT.
+              </p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
