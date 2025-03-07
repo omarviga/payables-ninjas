@@ -56,7 +56,7 @@ const Contactos = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-7xl">
+    <div className="flex flex-col gap-6 w-full">
       <ContactsHeader />
       <ContactsSummary contacts={contacts} />
       <ContactsFilterBar onFilterChange={handleFilterChange} />
