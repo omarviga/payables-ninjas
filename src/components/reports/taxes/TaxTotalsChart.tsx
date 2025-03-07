@@ -1,17 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { payments, TaxCategory } from '@/data/payments';
 import { FileWarning } from 'lucide-react';
-
-// Colores para las categorías de impuestos
-const TAX_COLORS = {
-  'IVA': '#38A3A5',
-  'ISR': '#8B5CF6', 
-  'IEPS': '#EB5353',
-  'otros': '#F59E0B'
-};
+import { TAX_COLORS } from './utils/taxConstants';
 
 export function TaxTotalsChart() {
   // Calculate tax totals for the pie chart
