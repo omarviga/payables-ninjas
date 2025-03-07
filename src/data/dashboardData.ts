@@ -1,4 +1,7 @@
 
+// Define proper Activity type with the correct status union type
+type ActivityStatus = "completed" | "failed" | "pending" | "warning";
+
 // Financial chart data - empty data
 export const financialData = [
   { name: 'Ene', ingresos: 15000, gastos: 8000 },
@@ -15,14 +18,14 @@ export const financialData = [
   { name: 'Dic', ingresos: 26000, gastos: 14000 }
 ];
 
-// Recent activities for dashboard
+// Recent activities for dashboard - with correct status types
 export const recentActivities = [
   {
     id: '1',
     title: 'Factura creada',
     description: 'Factura #A-001 para Distribuidora Nacional',
     timestamp: '2023-06-15T10:30:00',
-    status: 'completed',
+    status: 'completed' as ActivityStatus,
     user: {
       name: 'María Rodríguez',
       initials: 'MR'
@@ -33,7 +36,7 @@ export const recentActivities = [
     title: 'Pago recibido',
     description: '$12,500 de Distribuidora Nacional',
     timestamp: '2023-06-15T14:45:00',
-    status: 'completed',
+    status: 'completed' as ActivityStatus,
     user: {
       name: 'Carlos López',
       initials: 'CL'
@@ -44,7 +47,7 @@ export const recentActivities = [
     title: 'Factura pendiente',
     description: 'Factura #B-002 vence en 3 días',
     timestamp: '2023-06-16T09:15:00',
-    status: 'warning',
+    status: 'warning' as ActivityStatus,
     user: {
       name: 'Ana Martínez',
       initials: 'AM'

@@ -5,6 +5,9 @@ import { InvoicesSummary } from '@/components/dashboard/InvoicesSummary';
 import { financialData, recentActivities } from '@/data/dashboardData';
 import { getAllInvoices } from '@/data/invoices';
 
+// Define the proper type for activity status
+type ActivityStatus = "completed" | "failed" | "pending" | "warning";
+
 const Index = () => {
   // Obtener todas las facturas del sistema
   const allInvoices = getAllInvoices();
@@ -12,6 +15,12 @@ const Index = () => {
   // Separar facturas por cobrar y por pagar
   const receivableInvoices = allInvoices.filter(inv => inv.type === 'receivable');
   const payableInvoices = allInvoices.filter(inv => inv.type === 'payable');
+  
+  // Make sure we're using properly typed activities
+  const typedRecentActivities = recentActivities.map(activity => ({
+    ...activity,
+    status: activity.status as ActivityStatus
+  }));
   
   return (
     <div className="flex flex-col gap-6">
@@ -21,7 +30,7 @@ const Index = () => {
       
       <ChartAndActivitySection 
         financialData={financialData} 
-        recentActivities={recentActivities} 
+        recentActivities={typedRecentActivities} 
       />
       
       <div className="mt-4">
