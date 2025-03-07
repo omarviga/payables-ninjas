@@ -9,6 +9,7 @@ import { FileList } from './FileList';
 import { DropZone } from './DropZone';
 import { ProcessedInvoices } from './ProcessedInvoices';
 import { useUploadFiles } from '@/hooks/use-upload-files';
+import { InfoCircle } from 'lucide-react';
 
 interface UploadTabProps {
   onNavigateToInvoices: () => void;
@@ -23,6 +24,7 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
     progress,
     isDragging,
     processedInvoices,
+    duplicateCount,
     setProcessedInvoices,
     handleDragOver,
     handleDragLeave,
@@ -41,7 +43,12 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
     console.log("Iniciando procesamiento de archivos...");
     const result = await uploadFiles();
     
-    if (result && result.newInvoices && result.newInvoices.length > 0) {
+    if (!result) {
+      console.warn("No se pudo completar el procesamiento de archivos");
+      return;
+    }
+    
+    if (result.newInvoices && result.newInvoices.length > 0) {
       console.log(`Se procesaron ${result.newInvoices.length} facturas correctamente`);
       
       try {
@@ -54,7 +61,9 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
           
           toast({
             title: "Carga completada",
-            description: `Se han procesado ${result.newInvoices.length} CFDIs correctamente.`
+            description: `Se han procesado ${result.newInvoices.length} CFDIs correctamente.${
+              result.duplicateCount ? ` Se omitieron ${result.duplicateCount} CFDIs duplicados.` : ''
+            }`
           });
         } else {
           console.warn("No se recibieron facturas guardadas");
@@ -72,6 +81,13 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
           variant: "destructive"
         });
       }
+    } else if (result.duplicateCount > 0) {
+      console.log(`No se encontraron facturas nuevas para procesar, ${result.duplicateCount} duplicados detectados`);
+      toast({
+        title: "Facturas duplicadas",
+        description: `Todas las facturas seleccionadas (${result.duplicateCount}) ya existen en el sistema.`,
+        variant: "warning"
+      });
     } else {
       console.warn("No se encontraron XMLs válidos para procesar o el proceso falló");
       toast({
@@ -148,6 +164,18 @@ export function UploadTab({ onNavigateToInvoices }: UploadTabProps) {
             >
               {uploading ? 'Procesando...' : 'Procesar CFDIs'}
             </Button>
+          </div>
+        </div>
+      )}
+      
+      {duplicateCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mt-4 flex items-start">
+          <InfoCircle className="text-amber-500 h-5 w-5 mt-0.5 mr-2 flex-shrink-0" />
+          <div>
+            <h4 className="font-medium text-amber-700">Facturas duplicadas</h4>
+            <p className="text-sm text-amber-600">
+              Se detectaron {duplicateCount} facturas que ya existen en el sistema y no fueron procesadas nuevamente.
+            </p>
           </div>
         </div>
       )}

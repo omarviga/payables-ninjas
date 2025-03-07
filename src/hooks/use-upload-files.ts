@@ -14,6 +14,7 @@ export function useUploadFiles() {
   const [progress, setProgress] = useState(0);
   const [cfdiTypes, setCfdiTypes] = useState<Record<string, string>>({});
   const [processedInvoices, setProcessedInvoices] = useState<Invoice[]>([]);
+  const [duplicateCount, setDuplicateCount] = useState(0);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -136,6 +137,7 @@ export function useUploadFiles() {
       setUploading(true);
       setProgress(0);
       setProcessedInvoices([]);
+      setDuplicateCount(0);
       
       // Procesar solo archivos XML
       const xmlFiles = files.filter(file => {
@@ -160,14 +162,21 @@ export function useUploadFiles() {
       console.log(`Procesando ${xmlFiles.length} archivos XML`);
       const newInvoices: Invoice[] = [];
       let processed = 0;
+      let duplicates = 0;
       
       // Procesar cada archivo XML
       for (const file of xmlFiles) {
         try {
           console.log(`Procesando archivo XML: ${file.name}`);
-          const invoice = await processXmlFile(file);
-          console.log(`Factura procesada: ${invoice.number}, Tipo: ${invoice.cfdiType}, Monto: ${invoice.amount}`);
-          newInvoices.push(invoice);
+          const { invoice, isDuplicate } = await processXmlFile(file);
+          
+          if (isDuplicate) {
+            duplicates++;
+            console.log(`Factura duplicada detectada: ${invoice.uuid}`);
+          } else {
+            console.log(`Factura procesada: ${invoice.number}, Tipo: ${invoice.cfdiType}, Monto: ${invoice.amount}`);
+            newInvoices.push(invoice);
+          }
           
           processed++;
           setProgress(Math.floor((processed / xmlFiles.length) * 100));
@@ -181,7 +190,17 @@ export function useUploadFiles() {
         }
       }
       
-      return { newInvoices, processedCount: processed };
+      setDuplicateCount(duplicates);
+      
+      if (duplicates > 0) {
+        toast({
+          title: `${duplicates} facturas duplicadas`,
+          description: `Se encontraron ${duplicates} facturas que ya existen en el sistema y no se procesaron nuevamente.`,
+          variant: "warning"
+        });
+      }
+      
+      return { newInvoices, processedCount: processed, duplicateCount: duplicates };
     } catch (error) {
       console.error("Error durante el procesamiento de archivos:", error);
       toast({
@@ -199,6 +218,7 @@ export function useUploadFiles() {
     setFiles([]);
     setCfdiTypes({});
     setProcessedInvoices([]);
+    setDuplicateCount(0);
   };
 
   return {
@@ -208,6 +228,7 @@ export function useUploadFiles() {
     progress,
     isDragging,
     processedInvoices,
+    duplicateCount,
     setProcessedInvoices,
     handleDragOver,
     handleDragLeave,

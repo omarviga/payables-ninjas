@@ -20,3 +20,53 @@ export const supabase = createClient(
   supabaseUrl || DEFAULT_SUPABASE_URL,
   supabaseKey || DEFAULT_SUPABASE_KEY
 );
+
+// Función para subir archivos XML a Supabase Storage
+export const uploadXmlToStorage = async (file: File, userId?: string): Promise<string | null> => {
+  try {
+    // Verificar si el usuario está autenticado o si estamos en modo demo
+    if (!userId) {
+      console.log('Usuario no autenticado, modo demo: no se guardará el archivo físicamente');
+      return `demo-storage/${file.name}`;
+    }
+    
+    // Crear un path único para el archivo
+    const timestamp = Date.now();
+    const filePath = `cfdi/${userId}/${timestamp}_${file.name}`;
+    
+    // Subir el archivo a Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('facturas')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+    
+    if (error) {
+      console.error('Error al subir XML a Supabase Storage:', error);
+      return null;
+    }
+    
+    console.log('XML subido exitosamente a Supabase Storage:', data.path);
+    return data.path;
+  } catch (error) {
+    console.error('Error inesperado al subir XML:', error);
+    return null;
+  }
+};
+
+// Función para obtener la URL pública de un archivo en Storage
+export const getPublicUrl = (path: string): string | null => {
+  if (!path) return null;
+  
+  if (path.startsWith('demo-storage/')) {
+    // En modo demo, devolvemos una URL ficticia
+    return `https://demo.storage.supabase.co/${path}`;
+  }
+  
+  const { data } = supabase.storage
+    .from('facturas')
+    .getPublicUrl(path);
+  
+  return data?.publicUrl || null;
+};

@@ -15,6 +15,8 @@ export interface Invoice {
   cfdiType?: CfdiType;  // Tipo de CFDI según clasificación SAT
   uuid?: string;        // UUID único del CFDI
   relatedDocuments?: string[];  // Documentos relacionados (UUID)
+  storagePath?: string; // Ruta de almacenamiento del archivo en Supabase
+  fileUrl?: string;     // URL pública del archivo
 }
 
 // Caché local de facturas (para rendimiento y funcionamiento offline)

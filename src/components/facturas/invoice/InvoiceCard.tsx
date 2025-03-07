@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { InvoiceBadge } from './InvoiceBadge';
+import { Download } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 import type { Invoice } from '@/data/invoices';
 
 interface InvoiceCardProps {
@@ -24,8 +26,15 @@ export function InvoiceCard({ invoice }: InvoiceCardProps) {
     type = 'receivable',
     cfdiType = undefined,
     uuid = '',
-    relatedDocuments = []
+    relatedDocuments = [],
+    fileUrl = null
   } = invoice;
+
+  const handleDownload = () => {
+    if (fileUrl) {
+      window.open(fileUrl, '_blank');
+    }
+  };
 
   return (
     <div className="p-3 bg-gray-50 rounded-md" key={invoice.id}>
@@ -34,7 +43,20 @@ export function InvoiceCard({ invoice }: InvoiceCardProps) {
           <h4 className="font-medium">{number}</h4>
           <InvoiceBadge cfdiType={cfdiType} />
         </div>
-        <InvoiceBadge invoiceType={type} />
+        <div className="flex items-center gap-2">
+          <InvoiceBadge invoiceType={type} />
+          {fileUrl && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleDownload}
+              title="Descargar XML"
+              className="h-7 w-7 p-0"
+            >
+              <Download className="h-4 w-4 text-payables-600" />
+            </Button>
+          )}
+        </div>
       </div>
       
       <div className="grid grid-cols-2 gap-2 mt-2 text-sm">

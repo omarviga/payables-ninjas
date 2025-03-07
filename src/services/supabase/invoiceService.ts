@@ -1,5 +1,5 @@
 
-import { supabase } from './client';
+import { supabase, getPublicUrl } from './client';
 import type { Invoice } from '@/data/invoices';
 import { CfdiType } from '@/services/types/cfdiTypes';
 
@@ -16,6 +16,7 @@ interface InvoiceDB {
   cfdi_type?: string;
   uuid?: string;
   related_documents?: string[];
+  storage_path?: string; // Nuevo campo para la ruta del archivo en Storage
   user_id: string;
   created_at?: string;
 }
@@ -34,13 +35,14 @@ const toDbModel = (invoice: Invoice, userId: string): InvoiceDB => {
     cfdi_type: invoice.cfdiType,
     uuid: invoice.uuid,
     related_documents: invoice.relatedDocuments,
+    storage_path: invoice.storagePath, // Nuevo campo
     user_id: userId
   };
 };
 
 // Convertir de modelo de DB a modelo de app
 const toAppModel = (dbInvoice: InvoiceDB): Invoice => {
-  return {
+  const invoice: Invoice = {
     id: dbInvoice.id,
     number: dbInvoice.number,
     client: dbInvoice.client,
@@ -53,6 +55,15 @@ const toAppModel = (dbInvoice: InvoiceDB): Invoice => {
     uuid: dbInvoice.uuid,
     relatedDocuments: dbInvoice.related_documents
   };
+  
+  // Añadir el path de almacenamiento si existe
+  if (dbInvoice.storage_path) {
+    invoice.storagePath = dbInvoice.storage_path;
+    // Obtener la URL pública para el archivo
+    invoice.fileUrl = getPublicUrl(dbInvoice.storage_path);
+  }
+  
+  return invoice;
 };
 
 // Obtener todas las facturas del usuario actual
@@ -90,8 +101,39 @@ export const addInvoicesToDb = async (invoices: Invoice[]): Promise<Invoice[]> =
       return invoices; // En modo demo, solo devolvemos las facturas sin guardarlas
     }
 
+    // Filtrar facturas sin UUID duplicado
+    const invoicesToAdd = [];
+    for (const invoice of invoices) {
+      if (invoice.uuid) {
+        // Verificar si ya existe una factura con este UUID
+        const { data, error } = await supabase
+          .from('invoices')
+          .select('id')
+          .eq('uuid', invoice.uuid)
+          .eq('user_id', userData.user.id)
+          .limit(1);
+        
+        if (error) {
+          console.error('Error al verificar UUID duplicado:', error);
+          continue;
+        }
+        
+        if (data && data.length > 0) {
+          console.log(`Factura con UUID ${invoice.uuid} ya existe, omitiendo`);
+          continue;
+        }
+      }
+      
+      invoicesToAdd.push(invoice);
+    }
+    
+    if (invoicesToAdd.length === 0) {
+      console.log('No hay facturas nuevas para añadir');
+      return [];
+    }
+
     // Convertir facturas al formato de la base de datos
-    const dbInvoices = invoices.map(invoice => toDbModel(invoice, userData.user.id));
+    const dbInvoices = invoicesToAdd.map(invoice => toDbModel(invoice, userData.user.id));
     
     // Insertar en la base de datos
     const { data, error } = await supabase
@@ -101,10 +143,10 @@ export const addInvoicesToDb = async (invoices: Invoice[]): Promise<Invoice[]> =
 
     if (error) {
       console.error('Error al añadir facturas:', error);
-      return invoices; // Si hay error, devolvemos las facturas originales
+      return invoicesToAdd; // Si hay error, devolvemos las facturas originales
     }
 
-    return data ? (data as InvoiceDB[]).map(toAppModel) : invoices;
+    return data ? (data as InvoiceDB[]).map(toAppModel) : invoicesToAdd;
   } catch (error) {
     console.error('Error inesperado al añadir facturas:', error);
     return invoices;
@@ -136,4 +178,14 @@ export const updateInvoice = async (invoice: Invoice): Promise<boolean> => {
     console.error('Error inesperado al actualizar factura:', error);
     return false;
   }
+};
+
+// Descargar el archivo XML de una factura
+export const downloadInvoiceFile = async (invoice: Invoice): Promise<string | null> => {
+  if (!invoice.storagePath) {
+    console.error('La factura no tiene un archivo asociado');
+    return null;
+  }
+  
+  return getPublicUrl(invoice.storagePath);
 };
