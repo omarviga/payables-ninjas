@@ -39,7 +39,7 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
       toast({
         title: "Descarga exitosa",
         description: "Se han descargado 12 facturas del SAT",
-        variant: "success",
+        variant: "default", // Changed from "success" to "default"
       });
       setLoading(false);
       
