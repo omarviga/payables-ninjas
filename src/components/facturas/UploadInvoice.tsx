@@ -52,8 +52,11 @@ export function UploadInvoice() {
   };
 
   const handleFiles = (newFiles: File[]) => {
+    console.log("Archivos recibidos:", newFiles.map(f => `${f.name} (${f.type})`));
+    
     // Filtrar solo archivos XML y PDF usando la función mejorada
     const validFiles = filterValidFiles(newFiles);
+    console.log("Archivos válidos:", validFiles.map(f => `${f.name} (${f.type})`));
     
     if (validFiles.length !== newFiles.length) {
       toast({
@@ -77,6 +80,7 @@ export function UploadInvoice() {
     
     validFiles.forEach(file => {
       if (isXmlFile(file)) {
+        console.log(`Archivo XML detectado: ${file.name}`);
         updatedCfdiTypes[file.name] = detectCfdiType(file.name);
       }
     });
@@ -119,7 +123,11 @@ export function UploadInvoice() {
     setProcessedInvoices([]);
     
     // Procesar solo archivos XML usando la función mejorada
-    const xmlFiles = files.filter(file => isXmlFile(file));
+    const xmlFiles = files.filter(file => {
+      const isXml = isXmlFile(file);
+      console.log(`Validando archivo ${file.name}: ${isXml ? 'Es XML' : 'No es XML'}`);
+      return isXml;
+    });
     
     if (xmlFiles.length === 0) {
       toast({

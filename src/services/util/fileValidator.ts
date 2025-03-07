@@ -10,13 +10,13 @@ export const filterValidFiles = (files: File[]): File[] => {
     // Verificar extensión del archivo
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     
-    // Validar archivos XML
+    // Validar archivos XML - enfoque más robusto
     const isXml = 
       fileExtension === 'xml' || 
       file.type === 'application/xml' || 
       file.type === 'text/xml' ||
       file.type.includes('xml') ||
-      file.name.endsWith('.xml');
+      file.name.toLowerCase().endsWith('.xml');
     
     // Validar archivos PDF
     const isPdf = 
@@ -37,7 +37,7 @@ export const isXmlFile = (file: File): boolean => {
          file.type === 'application/xml' || 
          file.type === 'text/xml' ||
          file.type.includes('xml') ||
-         file.name.endsWith('.xml');
+         file.name.toLowerCase().endsWith('.xml');
 };
 
 /**
