@@ -23,7 +23,8 @@ const Facturas = () => {
     loadInvoices,
     markInvoiceAsPaid,
     deleteInvoice,
-    filterInvoices
+    filterInvoices,
+    downloadInvoicesFromSAT
   } = useInvoices();
 
   console.log("Renderizando página Facturas");
@@ -122,6 +123,24 @@ const Facturas = () => {
     navigate('/cargar-facturas');
   }, [navigate]);
 
+  // Nueva función para manejar la descarga desde el SAT
+  const handleDownloadFromSAT = useCallback(async () => {
+    // En un caso real, estos valores vendrían de la configuración o input del usuario
+    const certPem = 'MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIAgEAAoIBAQ...'; 
+    const keyPem = 'MIIE6TAbBgkqhkiG9w0BBQMwDgQIAgEAAoIBAQA...';  
+    const requestId = 'REQ-' + Date.now();
+
+    const result = await downloadInvoicesFromSAT(certPem, keyPem, requestId);
+    
+    if (!result.success) {
+      toast({
+        title: "Error al descargar del SAT",
+        description: result.error || "No se pudieron descargar las facturas del SAT. Verifica tu configuración.",
+        variant: "destructive"
+      });
+    }
+  }, [downloadInvoicesFromSAT, toast]);
+
   const showContent = !isLoading && !error && allInvoices.length > 0;
 
   return (
@@ -132,6 +151,7 @@ const Facturas = () => {
         onFilter={handleFilter}
         onResetFilter={handleResetFilter}
         onExport={handleExportInvoices}
+        onDownloadFromSAT={handleDownloadFromSAT}
       />
       
       <InvoiceStatusDisplay 

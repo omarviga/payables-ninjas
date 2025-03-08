@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, FileDown } from 'lucide-react';
+import { Search, Filter, FileDown, Download } from 'lucide-react';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { useState } from 'react';
@@ -11,13 +11,15 @@ interface FacturasFilterBarProps {
   onResetFilter: () => void;
   onExport: () => void;
   onDateRangeChange?: (range: DateRange | undefined) => void;
+  onDownloadFromSAT?: () => void; // Nueva prop para descargar del SAT
 }
 
 export function FacturasFilterBar({ 
   onFilter, 
   onResetFilter, 
   onExport,
-  onDateRangeChange 
+  onDateRangeChange,
+  onDownloadFromSAT
 }: FacturasFilterBarProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -75,11 +77,34 @@ export function FacturasFilterBar({
       <div className="flex items-center gap-2 w-full md:w-auto">
         <DateRangePicker onChange={handleDateChange} />
         
-        <Button variant="outline" size="icon" onClick={onExport} className="shrink-0">
+        {onDownloadFromSAT && (
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={onDownloadFromSAT} 
+            className="shrink-0 bg-amber-50 border-amber-200 hover:bg-amber-100"
+            title="Descargar facturas del SAT"
+          >
+            <Download className="h-4 w-4 text-amber-600" />
+          </Button>
+        )}
+        
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={onExport} 
+          className="shrink-0"
+          title="Exportar facturas"
+        >
           <FileDown className="h-4 w-4" />
         </Button>
         
-        <Button variant="outline" size="icon" className="shrink-0">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="shrink-0"
+          title="Filtros avanzados"
+        >
           <Filter className="h-4 w-4" />
         </Button>
       </div>
