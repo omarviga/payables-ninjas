@@ -1,140 +1,44 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useCallback } from 'react';
+import { PageHeader } from '@/components/common/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
 import { 
-  FileUp, Filter, CreditCard, Wallet, 
-  CheckCircle2, AlertCircle, XCircle, Eye, ArrowUpRight,
-  ArrowDownLeft, CheckCheck, FilePlus2, Landmark
+  FileUp, Filter, CreditCard, 
+  CheckCircle2, AlertCircle, XCircle, 
+  FilePlus2, Landmark, CheckCheck
 } from 'lucide-react';
-
-const transactions = [
-  {
-    id: '1',
-    date: '15/05/2023',
-    reference: 'TRF987654',
-    description: 'TRANSFERENCIA RECIBIDA DE EMPRESA ABC',
-    amount: 15000,
-    type: 'credit',
-    status: 'matched',
-    matchedDocument: 'FAC-2023-001',
-    accountName: 'CUENTA PRINCIPAL BBVA'
-  },
-  {
-    id: '2',
-    date: '18/05/2023',
-    reference: 'TRF123456',
-    description: 'PAGO A PROVEEDOR SUMINISTROS SA',
-    amount: 8500,
-    type: 'debit',
-    status: 'matched',
-    matchedDocument: 'PROV-2023-001',
-    accountName: 'CUENTA PRINCIPAL BBVA'
-  },
-  {
-    id: '3',
-    date: '20/05/2023',
-    reference: 'TDC98765',
-    description: 'CARGO TARJETA CORPORATIVA MUEBLES Y EQ',
-    amount: 2000,
-    type: 'debit',
-    status: 'unmatched',
-    matchedDocument: null,
-    accountName: 'TARJETA CORPORATIVA'
-  },
-  {
-    id: '4',
-    date: '25/05/2023',
-    reference: 'DEP123456',
-    description: 'DEPÓSITO EN EFECTIVO',
-    amount: 3000,
-    type: 'credit',
-    status: 'matched',
-    matchedDocument: 'FAC-2023-002',
-    accountName: 'CUENTA PRINCIPAL BBVA'
-  },
-  {
-    id: '5',
-    date: '28/05/2023',
-    reference: 'DOMICIL987',
-    description: 'CARGO DOMICILIADO SERVICIOS VARIOS',
-    amount: 1200,
-    type: 'debit',
-    status: 'unmatched',
-    matchedDocument: null,
-    accountName: 'CUENTA PRINCIPAL BBVA'
-  },
-  {
-    id: '6',
-    date: '01/06/2023',
-    reference: 'CHQ000123',
-    description: 'COBRO DE CHEQUE 000123',
-    amount: 5000,
-    type: 'debit',
-    status: 'doubtful',
-    matchedDocument: null,
-    accountName: 'CUENTA PRINCIPAL BBVA'
-  }
-];
-
-const statusColors: Record<string, string> = {
-  matched: "bg-success/20 text-success hover:bg-success/30",
-  unmatched: "bg-warning/20 text-warning hover:bg-warning/30",
-  doubtful: "bg-danger/20 text-danger hover:bg-danger/30",
-};
-
-const statusMap: Record<string, { text: string, icon: any }> = {
-  matched: {
-    text: "Conciliado",
-    icon: CheckCircle2
-  },
-  unmatched: {
-    text: "Sin Conciliar",
-    icon: AlertCircle
-  },
-  doubtful: {
-    text: "Dudoso",
-    icon: XCircle
-  }
-};
-
-const typeMap: Record<string, { text: string, icon: any, className: string }> = {
-  credit: {
-    text: "Ingreso",
-    icon: ArrowDownLeft,
-    className: "text-success"
-  },
-  debit: {
-    text: "Egreso",
-    icon: ArrowUpRight,
-    className: "text-danger"
-  }
-};
-
-const banks = [
-  { id: 'bbva', name: 'BBVA', accounts: 2, balance: 120000 },
-  { id: 'santander', name: 'Santander', accounts: 1, balance: 75000 },
-  { id: 'banorte', name: 'Banorte', accounts: 1, balance: 45000 }
-];
+import { BankCard } from '@/components/conciliacion/BankCard';
+import { TransactionsTable } from '@/components/conciliacion/TransactionsTable';
+import { Spinner } from '@/components/ui/spinner';
+import { transactions, banks } from '@/data/conciliacion';
 
 const Conciliacion = () => {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const matchedTransactions = transactions.filter(tx => tx.status === 'matched');
   const unmatchedTransactions = transactions.filter(tx => tx.status === 'unmatched');
   const doubtfulTransactions = transactions.filter(tx => tx.status === 'doubtful');
   
-  const handleDateRangeChange = (range: DateRange | undefined) => {
+  const handleDateRangeChange = useCallback((range: DateRange | undefined) => {
+    if (range?.from && range?.to && range.from > range.to) {
+      toast({
+        title: "Error",
+        description: "La fecha de inicio no puede ser mayor que la fecha de fin.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setDateRange(range);
     if (range?.from) {
       toast({
@@ -144,133 +48,88 @@ const Conciliacion = () => {
           : `${range.from.toLocaleDateString('es-MX')}`,
       });
     }
-  };
+  }, [toast]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  };
+  }, []);
 
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchTerm.trim()) {
+      handleSearch();
+    }
+  }, [searchTerm]);
+
+  const handleSearch = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Simulación de búsqueda asíncrona
+      await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
         title: "Búsqueda realizada",
         description: `Buscando: "${searchTerm}"`,
       });
+    } finally {
+      setIsLoading(false);
     }
-  };
-  
-  const renderTransactionsTable = (txList: typeof transactions) => (
-    <div className="border rounded-lg overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Referencia</TableHead>
-            <TableHead>Descripción</TableHead>
-            <TableHead>Cuenta</TableHead>
-            <TableHead>Tipo</TableHead>
-            <TableHead className="text-right">Monto</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {txList.map((tx) => {
-            const StatusIcon = statusMap[tx.status].icon;
-            const TypeIcon = typeMap[tx.type].icon;
-            
-            return (
-              <TableRow key={tx.id}>
-                <TableCell>{tx.date}</TableCell>
-                <TableCell className="font-medium">{tx.reference}</TableCell>
-                <TableCell>{tx.description}</TableCell>
-                <TableCell>{tx.accountName}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <TypeIcon className={`h-4 w-4 ${typeMap[tx.type].className}`} />
-                    <span>{typeMap[tx.type].text}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right font-medium">
-                  ${tx.amount.toLocaleString('es-MX')}
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className={statusColors[tx.status]}>
-                    <StatusIcon className="mr-1 h-3 w-3" />
-                    {statusMap[tx.status].text}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
-                    <Button variant="ghost" size="icon" title="Ver detalles">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {tx.status !== 'matched' && (
-                      <Button variant="ghost" size="icon" title="Conciliar manualmente">
-                        <CheckCheck className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
-  );
+  }, [searchTerm, toast]);
+
+  const handleAutoConciliate = useCallback(() => {
+    toast({
+      title: "Conciliación automática",
+      description: "Iniciando proceso de conciliación automática...",
+    });
+  }, [toast]);
+
+  const handleUploadStatement = useCallback(() => {
+    toast({
+      title: "Cargar estado de cuenta",
+      description: "Selecciona un archivo para cargar el estado de cuenta.",
+    });
+  }, [toast]);
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold font-heading">Conciliación Bancaria</h1>
-          <p className="text-muted-foreground mt-1">
-            Concilia tus movimientos bancarios con tus facturas y pagos
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button asChild variant="outline" className="sm:w-auto">
-            <div>
-              <FileUp className="mr-2 h-4 w-4" />
-              Cargar Estado de Cuenta
-            </div>
-          </Button>
-          <Button className="bg-payables-600 hover:bg-payables-700 sm:w-auto">
-            <CheckCheck className="mr-2 h-4 w-4" />
-            Conciliar Automáticamente
-          </Button>
-        </div>
+      <PageHeader 
+        title="Conciliación Bancaria"
+        description="Concilia tus movimientos bancarios con tus facturas y pagos"
+      />
+      
+      <div className="flex flex-col sm:flex-row gap-2 sm:items-center justify-end">
+        <Button 
+          variant="outline" 
+          className="sm:w-auto"
+          onClick={handleUploadStatement}
+        >
+          <FileUp className="mr-2 h-4 w-4" />
+          Cargar Estado de Cuenta
+        </Button>
+        <Button 
+          className="bg-payables-600 hover:bg-payables-700 sm:w-auto"
+          onClick={handleAutoConciliate}
+        >
+          <CheckCheck className="mr-2 h-4 w-4" />
+          Conciliar Automáticamente
+        </Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {banks.map(bank => (
-          <Card key={bank.id}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{bank.name}</CardTitle>
-              <Landmark className="h-4 w-4 text-payables-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold">${bank.balance.toLocaleString('es-MX')}</div>
-              <p className="text-xs text-muted-foreground">
-                {bank.accounts} {bank.accounts === 1 ? 'cuenta' : 'cuentas'}
-              </p>
-            </CardContent>
-          </Card>
+          <BankCard
+            key={bank.id}
+            name={bank.name}
+            balance={bank.balance}
+            accounts={bank.accounts}
+            icon={Landmark}
+          />
         ))}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Progreso de Conciliación</CardTitle>
-            <FilePlus2 className="h-4 w-4 text-payables-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">67%</div>
-            <Progress value={67} className="h-2 mt-2" />
-            <p className="text-xs text-muted-foreground mt-2">
-              4 de 6 movimientos conciliados
-            </p>
-          </CardContent>
-        </Card>
+        <BankCard
+          name="Progreso de Conciliación"
+          balance={67}
+          accounts={4}
+          icon={FilePlus2}
+          valueIsCurrency={false}
+        />
       </div>
       
       <div className="flex flex-col sm:flex-row gap-4 justify-between mb-4">
@@ -282,7 +141,13 @@ const Conciliacion = () => {
             value={searchTerm}
             onChange={handleSearchChange}
             onKeyDown={handleSearchKeyDown}
+            disabled={isLoading}
           />
+          {isLoading && (
+            <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+              <Spinner size="sm" />
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <DateRangePicker onChange={handleDateRangeChange} />
@@ -317,19 +182,19 @@ const Conciliacion = () => {
         </TabsList>
         
         <TabsContent value="all" className="mt-0">
-          {renderTransactionsTable(transactions)}
+          <TransactionsTable transactions={transactions} />
         </TabsContent>
         
         <TabsContent value="matched" className="mt-0">
-          {renderTransactionsTable(matchedTransactions)}
+          <TransactionsTable transactions={matchedTransactions} />
         </TabsContent>
         
         <TabsContent value="unmatched" className="mt-0">
-          {renderTransactionsTable(unmatchedTransactions)}
+          <TransactionsTable transactions={unmatchedTransactions} />
         </TabsContent>
         
         <TabsContent value="doubtful" className="mt-0">
-          {renderTransactionsTable(doubtfulTransactions)}
+          <TransactionsTable transactions={doubtfulTransactions} />
         </TabsContent>
       </Tabs>
     </div>
