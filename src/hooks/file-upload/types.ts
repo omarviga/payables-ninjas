@@ -27,3 +27,10 @@ export interface FileUploadActions {
 }
 
 export type UseFileUploadReturn = FileUploadState & FileUploadActions;
+
+export interface AdvancedFilters {
+  status?: string;
+  minAmount?: string;
+  maxAmount?: string;
+  // Add other filter properties as needed
+}
