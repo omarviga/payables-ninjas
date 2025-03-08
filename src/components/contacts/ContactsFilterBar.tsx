@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Search, Filter } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { Spinner } from '@/components/ui/spinner';
 
 interface ContactsFilterBarProps {
   onFilterChange: (filters: {
@@ -12,9 +13,10 @@ interface ContactsFilterBarProps {
     type: string;
     status: string;
   }) => void;
+  disabled?: boolean;
 }
 
-export const ContactsFilterBar = ({ onFilterChange }: ContactsFilterBarProps) => {
+export const ContactsFilterBar = ({ onFilterChange, disabled = false }: ContactsFilterBarProps) => {
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [type, setType] = useState('all');
@@ -70,10 +72,11 @@ export const ContactsFilterBar = ({ onFilterChange }: ContactsFilterBarProps) =>
           value={search}
           onChange={handleSearchChange}
           onKeyDown={handleKeyPress}
+          disabled={disabled}
         />
       </div>
       <div className="flex flex-1 gap-2 flex-col sm:flex-row">
-        <Select value={type} onValueChange={handleTypeChange}>
+        <Select value={type} onValueChange={handleTypeChange} disabled={disabled}>
           <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Tipo de contacto" />
           </SelectTrigger>
@@ -85,7 +88,7 @@ export const ContactsFilterBar = ({ onFilterChange }: ContactsFilterBarProps) =>
             <SelectItem value="other">Otros</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={status} onValueChange={handleStatusChange}>
+        <Select value={status} onValueChange={handleStatusChange} disabled={disabled}>
           <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>
@@ -101,13 +104,15 @@ export const ContactsFilterBar = ({ onFilterChange }: ContactsFilterBarProps) =>
             size="icon" 
             className="min-w-10"
             onClick={handleFilter}
+            disabled={disabled}
           >
-            <Filter className="h-4 w-4" />
+            {disabled ? <Spinner size="sm" /> : <Filter className="h-4 w-4" />}
           </Button>
           <Button 
             variant="secondary"
             size="default"
             onClick={handleReset}
+            disabled={disabled}
           >
             Restablecer
           </Button>

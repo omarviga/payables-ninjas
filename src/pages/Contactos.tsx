@@ -1,66 +1,51 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { ContactsHeader } from '@/components/contacts/ContactsHeader';
 import { ContactsFilterBar } from '@/components/contacts/ContactsFilterBar';
-import { ContactsTable } from '@/components/contacts/ContactsTable';
-import { ContactsSummary } from '@/components/contacts/ContactsSummary';
+import { MemoizedContactsTable } from '@/components/contacts/MemoizedContactsTable';
+import { MemoizedContactsSummary } from '@/components/contacts/MemoizedContactsSummary';
+import { Spinner } from '@/components/ui/spinner';
 import { contacts as allContacts } from '@/data/contacts';
-import type { Contact } from '@/data/contacts';
+import { filterContacts } from '@/utils/contactsFilters';
 
 const Contactos = () => {
-  const [contacts, setContacts] = useState<Contact[]>(allContacts);
   const [filters, setFilters] = useState({
     search: '',
     type: 'all',
     status: 'all'
   });
+  const [isFiltering, setIsFiltering] = useState(false);
 
-  useEffect(() => {
-    // Apply filters
-    let filteredContacts = [...allContacts];
-
-    // Filter by search term
-    if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
-      filteredContacts = filteredContacts.filter(
-        contact =>
-          contact.name.toLowerCase().includes(searchTerm) ||
-          contact.company.toLowerCase().includes(searchTerm) ||
-          contact.email.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    // Filter by type
-    if (filters.type !== 'all') {
-      filteredContacts = filteredContacts.filter(
-        contact => contact.type === filters.type
-      );
-    }
-
-    // Filter by status
-    if (filters.status !== 'all') {
-      filteredContacts = filteredContacts.filter(
-        contact => contact.status === filters.status
-      );
-    }
-
-    setContacts(filteredContacts);
+  // Use useMemo instead of useEffect for filtering
+  const filteredContacts = useMemo(() => {
+    return filterContacts(allContacts, filters);
   }, [filters]);
 
-  const handleFilterChange = (newFilters: {
+  const handleFilterChange = useCallback(async (newFilters: {
     search: string;
     type: string;
     status: string;
   }) => {
+    setIsFiltering(true);
     setFilters(newFilters);
-  };
+    // Simulate async filtering with a small delay
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    setIsFiltering(false);
+  }, []);
 
   return (
     <div className="flex flex-col gap-6 w-full">
       <ContactsHeader />
-      <ContactsSummary contacts={contacts} />
-      <ContactsFilterBar onFilterChange={handleFilterChange} />
-      <ContactsTable contacts={contacts} />
+      <MemoizedContactsSummary contacts={filteredContacts} />
+      <ContactsFilterBar onFilterChange={handleFilterChange} disabled={isFiltering} />
+      
+      {isFiltering ? (
+        <div className="flex justify-center my-12">
+          <Spinner size="lg" />
+        </div>
+      ) : (
+        <MemoizedContactsTable contacts={filteredContacts} />
+      )}
     </div>
   );
 };
