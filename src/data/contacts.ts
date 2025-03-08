@@ -46,3 +46,13 @@ export const contacts: Contact[] = [
     createdAt: '2022-01-10T09:15:00'
   }
 ];
+
+/**
+ * Función para obtener todos los contactos
+ * @returns Array de contactos
+ */
+export const getAllContacts = (): Contact[] => {
+  // En un caso real, esto podría hacer una llamada a una API
+  // Por ahora, simplemente devolvemos los contactos de ejemplo
+  return contacts;
+};
