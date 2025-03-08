@@ -4,9 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQATests } from "@/hooks/use-qa-tests";
 import { CheckCircle, XCircle, Play } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { useEffect } from "react";
 
 export function QATestRunner() {
   const { results, isRunning, runAllTests } = useQATests();
+
+  useEffect(() => {
+    console.log("QATestRunner rendered, results:", results, "isRunning:", isRunning);
+  }, [results, isRunning]);
+
+  const handleRunTests = async () => {
+    console.log("⏱️ Iniciando pruebas...");
+    await runAllTests();
+  };
 
   return (
     <Card className="w-full">
@@ -14,7 +24,7 @@ export function QATestRunner() {
         <CardTitle className="flex items-center justify-between">
           <span>Pruebas de QA</span>
           <Button 
-            onClick={runAllTests} 
+            onClick={handleRunTests} 
             disabled={isRunning}
             variant="outline"
             className="flex items-center gap-2"

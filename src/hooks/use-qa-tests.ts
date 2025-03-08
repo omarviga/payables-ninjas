@@ -52,6 +52,11 @@ export function useQATests() {
   // Test contact filtering
   const testContactFiltering = () => {
     try {
+      // First ensure contacts are loaded
+      if (!contactsHook.contacts || contactsHook.contacts.length === 0) {
+        contactsHook.loadContacts();
+      }
+      
       const result = contactsHook.applyFilters({ search: 'María', type: '', status: '' });
       const passed = result.success && result.filteredCount > 0;
       return recordResult(
@@ -101,22 +106,36 @@ export function useQATests() {
     }
   };
 
-  // Run all tests
+  // Run all tests sequentially
   const runAllTests = async () => {
     setIsRunning(true);
     setResults([]);
     
     try {
-      // Run the tests in sequence
+      console.log("🧪 Iniciando pruebas de QA...");
+      
+      // Run tests in sequence and wait for each test to complete
       await testContactsLoading();
-      testContactFiltering();
-      testAddContact();
+      console.log("✅ Prueba de carga de contactos completada");
+      
+      // Small delay to make testing more visible
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await Promise.resolve(testContactFiltering());
+      console.log("✅ Prueba de filtrado de contactos completada");
+      
+      // Small delay to make testing more visible
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await Promise.resolve(testAddContact());
+      console.log("✅ Prueba de agregar contactos completada");
       
       toast({
         title: "Pruebas completadas",
         description: "Todas las pruebas de QA han finalizado",
       });
     } catch (error) {
+      console.error("❌ Error durante las pruebas:", error);
       toast({
         title: "Error en pruebas",
         description: `Ocurrió un error durante las pruebas: ${error instanceof Error ? error.message : String(error)}`,
