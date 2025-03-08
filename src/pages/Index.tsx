@@ -7,6 +7,7 @@ import { financialData, recentActivities } from '@/data/dashboardData';
 import { useInvoices } from '@/hooks/use-invoices';
 import { Spinner } from '@/components/ui/spinner';
 import { AlertTriangle } from 'lucide-react';
+import { QATestRunner } from '@/components/qa/QATestRunner';
 
 // Define the proper type for activity status
 type ActivityStatus = "completed" | "failed" | "pending" | "warning";
@@ -54,6 +55,10 @@ const Index = () => {
       
       <div className="mt-4">
         <InvoicesSummary receivable={receivableInvoices} payable={payableInvoices} />
+      </div>
+
+      <div className="mt-4">
+        <QATestRunner />
       </div>
     </div>
   );
