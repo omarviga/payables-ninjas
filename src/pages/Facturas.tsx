@@ -4,8 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FacturasHeader } from '@/components/facturas/FacturasHeader';
 import { FacturasFilterBar } from '@/components/facturas/FacturasFilterBar';
 import { InvoiceTabs } from '@/components/facturas/InvoiceTabs';
-import type { Invoice } from '@/data/invoices';
-import { FileText } from 'lucide-react';
+import { InvoiceStatusDisplay } from '@/components/facturas/InvoiceStatusDisplay';
 import { useNavigate } from 'react-router-dom';
 import { useInvoices } from '@/hooks/use-invoices';
 
@@ -123,6 +122,8 @@ const Facturas = () => {
     navigate('/cargar-facturas');
   }, [navigate]);
 
+  const showContent = !isLoading && !error && allInvoices.length > 0;
+
   return (
     <div className="flex flex-col gap-6">
       <FacturasHeader onUploadClick={handleUploadFacturas} />
@@ -133,31 +134,13 @@ const Facturas = () => {
         onExport={handleExportInvoices}
       />
       
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="rounded-full bg-slate-200 h-12 w-12 mb-4"></div>
-            <div className="h-4 bg-slate-200 rounded w-32 mb-2"></div>
-            <div className="h-3 bg-slate-200 rounded w-24"></div>
-          </div>
-        </div>
-      ) : error ? (
-        <div className="text-center py-12 border rounded-lg bg-red-50">
-          <FileText className="w-12 h-12 mx-auto text-red-400" />
-          <h3 className="mt-4 text-lg font-medium text-red-500">Error al cargar facturas</h3>
-          <p className="mt-2 text-sm text-red-500 max-w-md mx-auto">
-            {error}. Por favor intenta nuevamente más tarde o contacta a soporte.
-          </p>
-        </div>
-      ) : allInvoices.length === 0 ? (
-        <div className="text-center py-12 border rounded-lg bg-gray-50">
-          <FileText className="w-12 h-12 mx-auto text-muted-foreground" />
-          <h3 className="mt-4 text-lg font-medium">No hay facturas disponibles</h3>
-          <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-            Utiliza el botón "Cargar Facturas" para subir tus primeros CFDIs o configura la conexión con el SAT.
-          </p>
-        </div>
-      ) : (
+      <InvoiceStatusDisplay 
+        isLoading={isLoading} 
+        error={error} 
+        isEmpty={!isLoading && !error && allInvoices.length === 0} 
+      />
+
+      {showContent && (
         <InvoiceTabs 
           allInvoices={allInvoices}
           receiveInvoices={receivableInvoices}
