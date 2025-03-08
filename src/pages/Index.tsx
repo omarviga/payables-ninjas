@@ -1,34 +1,45 @@
 
+import { useMemo } from 'react';
 import { DashboardMetrics } from '@/components/dashboard/DashboardMetrics';
 import { ChartAndActivitySection } from '@/components/dashboard/ChartAndActivitySection';
 import { InvoicesSummary } from '@/components/dashboard/InvoicesSummary';
 import { financialData, recentActivities } from '@/data/dashboardData';
-import { getAllInvoices } from '@/data/invoices';
-import { useEffect, useState } from 'react';
-import type { Invoice } from '@/data/invoices';
+import { useInvoices } from '@/hooks/use-invoices';
+import { Spinner } from '@/components/ui/spinner';
+import { AlertTriangle } from 'lucide-react';
 
 // Define the proper type for activity status
 type ActivityStatus = "completed" | "failed" | "pending" | "warning";
 
 const Index = () => {
-  const [allInvoices, setAllInvoices] = useState<Invoice[]>([]);
-  
-  // Cargar facturas al montar el componente y cuando se actualiza
-  useEffect(() => {
-    const invoices = getAllInvoices();
-    console.log("Dashboard: Cargando facturas, cantidad:", invoices.length);
-    setAllInvoices(invoices);
-  }, []);
-  
-  // Separar facturas por cobrar y por pagar
-  const receivableInvoices = allInvoices.filter(inv => inv.type === 'receivable');
-  const payableInvoices = allInvoices.filter(inv => inv.type === 'payable');
+  const { receivableInvoices, payableInvoices, isLoading, error } = useInvoices();
   
   // Make sure we're using properly typed activities
-  const typedRecentActivities = recentActivities.map(activity => ({
+  const typedRecentActivities = useMemo(() => recentActivities.map(activity => ({
     ...activity,
     status: activity.status as ActivityStatus
-  }));
+  })), []);
+  
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Spinner size="lg" />
+        <p className="mt-4 text-muted-foreground">Cargando datos del dashboard...</p>
+      </div>
+    );
+  }
+  
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
+        <h2 className="text-xl font-semibold mb-2">Error de carga</h2>
+        <p className="text-muted-foreground">{error}</p>
+      </div>
+    );
+  }
   
   return (
     <div className="flex flex-col gap-6">
