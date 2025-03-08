@@ -22,6 +22,14 @@ export function usePeriodFilter(
     }
   };
 
+  // Reset to default
+  const resetPeriod = () => {
+    setPeriod('month');
+    if (onPeriodChange) {
+      onPeriodChange('month');
+    }
+  };
+
   // Helper function for descriptive text
   const getPeriodText = (periodValue: string): string => {
     switch (periodValue) {
@@ -38,6 +46,7 @@ export function usePeriodFilter(
     period,
     showDatePicker,
     handlePeriodChange,
+    resetPeriod,
     getPeriodText
   };
 }

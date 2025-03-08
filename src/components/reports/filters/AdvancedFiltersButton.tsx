@@ -1,49 +1,45 @@
 
-import { Button } from '@/components/ui/button';
-import { Filter, X } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
+import { Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface AdvancedFiltersButtonProps {
   activeFiltersCount: number;
   onClick: () => void;
-  onClear?: () => void;
+  onClear: () => void;
+  disabled?: boolean;
 }
 
 export function AdvancedFiltersButton({ 
   activeFiltersCount, 
   onClick, 
-  onClear 
+  onClear,
+  disabled = false
 }: AdvancedFiltersButtonProps) {
   return (
     <div className="flex items-center gap-2">
-      <div className="relative">
-        <Button 
-          variant="outline" 
-          size="icon"
-          className={activeFiltersCount > 0 ? "bg-primary/10" : ""}
-          onClick={onClick}
-        >
-          <Filter className="h-4 w-4" />
-        </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="gap-2"
+        onClick={onClick}
+        disabled={disabled}
+      >
+        <Filter className="h-4 w-4" />
+        <span className="hidden sm:inline">Filtros avanzados</span>
         {activeFiltersCount > 0 && (
-          <Badge 
-            variant="destructive" 
-            className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
-          >
-            {activeFiltersCount}
-          </Badge>
+          <Badge className="ml-auto">{activeFiltersCount}</Badge>
         )}
-      </div>
+      </Button>
       
-      {activeFiltersCount > 0 && onClear && (
+      {activeFiltersCount > 0 && (
         <Button 
           variant="ghost" 
-          size="sm" 
-          className="h-8 px-2 text-xs flex items-center gap-1" 
+          size="sm"
           onClick={onClear}
+          disabled={disabled}
         >
-          <X className="h-3 w-3" />
-          Limpiar filtros
+          Limpiar
         </Button>
       )}
     </div>

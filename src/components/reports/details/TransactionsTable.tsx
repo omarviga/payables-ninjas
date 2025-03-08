@@ -3,60 +3,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DateRange } from 'react-day-picker';
-import { getAllInvoices } from "@/data/invoices";
+import type { Invoice } from "@/data/invoices";
 import { useMemo } from "react";
 
 interface TransactionsTableProps {
-  filters: {
-    dateRange: DateRange | undefined;
-    type: string;
-    status: string;
-    minAmount: string;
-    maxAmount: string;
+  invoices: Invoice[];
+  filters?: {
+    dateRange?: DateRange;
+    type?: string;
+    status?: string;
+    minAmount?: string;
+    maxAmount?: string;
   };
 }
 
-export function TransactionsTable({ filters }: TransactionsTableProps) {
-  // Obtener todas las facturas y aplicar filtros
-  const invoices = useMemo(() => {
-    const allInvoices = getAllInvoices();
-    
-    return allInvoices.filter(invoice => {
-      // Filtrar por tipo
-      if (filters.type !== 'all' && invoice.type !== filters.type) {
+export function TransactionsTable({ invoices, filters = {} }: TransactionsTableProps) {
+  // Apply any additional filters that might be specific to this component
+  const filteredInvoices = useMemo(() => {
+    return invoices.filter(invoice => {
+      // Additional filters that might be applied within the transactions component
+      if (filters.status && filters.status !== 'all' && invoice.status !== filters.status) {
         return false;
       }
       
-      // Filtrar por estado
-      if (filters.status !== 'all' && invoice.status !== filters.status) {
-        return false;
-      }
-      
-      // Filtrar por monto mínimo
       if (filters.minAmount && invoice.amount < parseFloat(filters.minAmount)) {
         return false;
       }
       
-      // Filtrar por monto máximo
       if (filters.maxAmount && invoice.amount > parseFloat(filters.maxAmount)) {
         return false;
       }
       
-      // Filtrar por rango de fechas
-      if (filters.dateRange?.from && filters.dateRange?.to) {
-        // Convertir la fecha de la factura (formato español DD/MM/YYYY) a objeto Date
-        const parts = invoice.date.split('/');
-        const invoiceDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-        
-        // Verificar si está dentro del rango
-        if (invoiceDate < filters.dateRange.from || invoiceDate > filters.dateRange.to) {
-          return false;
-        }
-      }
-      
       return true;
     });
-  }, [filters]);
+  }, [invoices, filters]);
 
   // Función para formatear la fecha (DD/MM/YYYY a DD-MM-YYYY para mejor visualización)
   const formatDate = (dateStr: string) => {
@@ -89,7 +69,7 @@ export function TransactionsTable({ filters }: TransactionsTableProps) {
         <CardTitle className="text-lg">Detalles de Transacciones</CardTitle>
       </CardHeader>
       <CardContent>
-        {invoices.length > 0 ? (
+        {filteredInvoices.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -103,7 +83,7 @@ export function TransactionsTable({ filters }: TransactionsTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {invoices.map((invoice) => (
+              {filteredInvoices.map((invoice) => (
                 <TableRow key={invoice.id}>
                   <TableCell className="font-medium">{invoice.number}</TableCell>
                   <TableCell>{invoice.client}</TableCell>

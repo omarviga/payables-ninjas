@@ -11,6 +11,12 @@ export function useAdvancedFiltersState(
   const [activeAdvancedFilters, setActiveAdvancedFilters] = useState<AdvancedFilters | null>(null);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
 
+  // Default filters
+  const defaultFilters: AdvancedFilters = {
+    incluirCanceladas: false,
+    incluirBorradores: false,
+  };
+
   // Effect to count active advanced filters
   useEffect(() => {
     if (activeAdvancedFilters) {
@@ -41,15 +47,21 @@ export function useAdvancedFiltersState(
     setActiveAdvancedFilters(null);
     setActiveFiltersCount(0);
     if (onAdvancedFiltersChange) {
-      onAdvancedFiltersChange({
-        incluirCanceladas: false,
-        incluirBorradores: false,
-      });
+      onAdvancedFiltersChange(defaultFilters);
     }
     toast({
       title: "Filtros avanzados eliminados",
       description: "Se han eliminado todos los filtros avanzados",
     });
+  };
+
+  // Reset advanced filters
+  const resetAdvancedFilters = () => {
+    setActiveAdvancedFilters(null);
+    setActiveFiltersCount(0);
+    if (onAdvancedFiltersChange) {
+      onAdvancedFiltersChange(defaultFilters);
+    }
   };
 
   return {
@@ -58,6 +70,7 @@ export function useAdvancedFiltersState(
     activeFiltersCount,
     setAdvancedFiltersOpen,
     handleAdvancedFiltersChange,
-    handleClearAdvancedFilters
+    handleClearAdvancedFilters,
+    resetAdvancedFilters
   };
 }

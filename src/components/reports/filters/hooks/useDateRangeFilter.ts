@@ -30,8 +30,17 @@ export function useDateRangeFilter(
     }
   };
 
+  // Reset to default
+  const resetDateRange = () => {
+    setDateRange(undefined);
+    if (onDateRangeChange) {
+      onDateRangeChange(undefined);
+    }
+  };
+
   return {
     dateRange,
-    handleDateRangeChange
+    handleDateRangeChange,
+    resetDateRange
   };
 }

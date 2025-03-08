@@ -16,6 +16,14 @@ export function useInvoiceTypeFilter(
     }
   };
 
+  // Reset to default
+  const resetInvoiceType = () => {
+    setInvoiceType('all');
+    if (onInvoiceTypeChange) {
+      onInvoiceTypeChange('all');
+    }
+  };
+
   // Helper function for descriptive text
   const getInvoiceTypeText = (typeValue: string): string => {
     switch (typeValue) {
@@ -29,6 +37,7 @@ export function useInvoiceTypeFilter(
   return {
     invoiceType,
     handleInvoiceTypeChange,
+    resetInvoiceType,
     getInvoiceTypeText
   };
 }

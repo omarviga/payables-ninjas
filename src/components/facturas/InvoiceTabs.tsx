@@ -31,11 +31,11 @@ export const InvoiceTabs = ({
 }: InvoiceTabsProps) => {
   const [activeTab, setActiveTab] = useState('all');
   
-  // Validar que los arrays estén definidos
-  const safeAllInvoices = allInvoices || [];
-  const safeReceiveInvoices = receiveInvoices || [];
-  const safePayableInvoices = payableInvoices || [];
-  const safeOverdueInvoices = overdueInvoices || [];
+  // Validar que los arrays estén definidos y crear copias seguras
+  const safeAllInvoices = Array.isArray(allInvoices) ? allInvoices : [];
+  const safeReceiveInvoices = Array.isArray(receiveInvoices) ? receiveInvoices : [];
+  const safePayableInvoices = Array.isArray(payableInvoices) ? payableInvoices : [];
+  const safeOverdueInvoices = Array.isArray(overdueInvoices) ? overdueInvoices : [];
   
   // Garantizar que el componente responda a actualizaciones de datos
   useEffect(() => {

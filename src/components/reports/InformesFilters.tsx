@@ -12,13 +12,17 @@ interface InformesFiltersProps {
   onInvoiceTypeChange?: (type: string) => void;
   onDateRangeChange?: (range: DateRange | undefined) => void;
   onAdvancedFiltersChange?: (filters: AdvancedFilters) => void;
+  onResetFilters?: () => void;
+  isLoading?: boolean;
 }
 
 export function InformesFilters({
   onPeriodChange,
   onInvoiceTypeChange,
   onDateRangeChange,
-  onAdvancedFiltersChange
+  onAdvancedFiltersChange,
+  onResetFilters,
+  isLoading = false
 }: InformesFiltersProps) {
   const {
     period,
@@ -37,21 +41,25 @@ export function InformesFilters({
     onPeriodChange,
     onInvoiceTypeChange,
     onDateRangeChange,
-    onAdvancedFiltersChange
+    onAdvancedFiltersChange,
+    onResetFilters
   });
+
+  // Combine the loading states
+  const isLoadingState = isLoading || isFiltering;
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-end justify-between mb-4">
       <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
         <PeriodFilter 
           value={period} 
-          isLoading={isFiltering} 
+          isLoading={isLoadingState} 
           onChange={handlePeriodChange} 
         />
         
         <InvoiceTypeFilter 
           value={invoiceType} 
-          isLoading={isFiltering} 
+          isLoading={isLoadingState} 
           onChange={handleInvoiceTypeChange} 
         />
         
@@ -64,6 +72,7 @@ export function InformesFilters({
             activeFiltersCount={activeFiltersCount}
             onClick={() => setAdvancedFiltersOpen(true)}
             onClear={handleClearAdvancedFilters}
+            disabled={isLoadingState}
           />
         </div>
       </div>
