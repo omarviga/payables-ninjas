@@ -12,12 +12,14 @@ export function useInformesFilters({
   onPeriodChange,
   onInvoiceTypeChange,
   onDateRangeChange,
-  onAdvancedFiltersChange
+  onAdvancedFiltersChange,
+  onResetFilters
 }: {
   onPeriodChange?: (period: string) => void;
   onInvoiceTypeChange?: (type: string) => void;
   onDateRangeChange?: (range: DateRange | undefined) => void;
   onAdvancedFiltersChange?: (filters: AdvancedFilters) => void;
+  onResetFilters?: () => void;
 }) {
   const { isFiltering, startFiltering, notifyFilterApplied } = useFilteringStatus();
   
@@ -70,7 +72,7 @@ export function useInformesFilters({
 
       return () => clearTimeout(timer);
     }
-  }, [isFiltering, period, invoiceType]);
+  }, [isFiltering, period, invoiceType, getPeriodText, getInvoiceTypeText, notifyFilterApplied]);
 
   return {
     period,
@@ -86,6 +88,7 @@ export function useInformesFilters({
     handleDateRangeChange: handleDateRangeChangeWithStatus,
     handleAdvancedFiltersChange,
     handleClearAdvancedFilters,
-    setAdvancedFiltersOpen
+    setAdvancedFiltersOpen,
+    onResetFilters
   };
 }

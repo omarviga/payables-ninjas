@@ -1,55 +1,73 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Wallet, FileText } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function ReportsSummary() {
+interface ReportsSummaryProps {
+  totalInvoices: number;
+  totalAmount: number;
+  paidInvoices: number;
+  paidAmount: number;
+  pendingInvoices: number;
+  pendingAmount: number;
+  overdueInvoices: number;
+  overdueAmount: number;
+}
+
+export function ReportsSummary({
+  totalInvoices,
+  totalAmount,
+  paidInvoices,
+  paidAmount,
+  pendingInvoices,
+  pendingAmount,
+  overdueInvoices,
+  overdueAmount
+}: ReportsSummaryProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
-          <TrendingUp className="h-4 w-4 text-success" />
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Total de Facturas</CardTitle>
+          <CardDescription className="text-2xl font-bold">{totalInvoices}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$0.00</div>
-          <p className="text-xs text-muted-foreground">
-            <span className="text-muted-foreground">0%</span> respecto al mes anterior
+          <p className="text-sm text-muted-foreground">
+            Monto total: ${totalAmount.toLocaleString()}
           </p>
         </CardContent>
       </Card>
+
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Gastos Totales</CardTitle>
-          <TrendingDown className="h-4 w-4 text-danger" />
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Pagadas</CardTitle>
+          <CardDescription className="text-2xl font-bold text-green-500">{paidInvoices}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$0.00</div>
-          <p className="text-xs text-muted-foreground">
-            <span className="text-muted-foreground">0%</span> respecto al mes anterior
+          <p className="text-sm text-muted-foreground">
+            Monto pagado: ${paidAmount.toLocaleString()}
           </p>
         </CardContent>
       </Card>
+
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Balance</CardTitle>
-          <Wallet className="h-4 w-4 text-payables-600" />
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Pendientes</CardTitle>
+          <CardDescription className="text-2xl font-bold text-amber-500">{pendingInvoices}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$0.00</div>
-          <p className="text-xs text-muted-foreground">
-            <span className="text-muted-foreground">0%</span> en el periodo actual
+          <p className="text-sm text-muted-foreground">
+            Monto pendiente: ${pendingAmount.toLocaleString()}
           </p>
         </CardContent>
       </Card>
+
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Facturas Totales</CardTitle>
-          <FileText className="h-4 w-4 text-payables-500" />
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Vencidas</CardTitle>
+          <CardDescription className="text-2xl font-bold text-red-500">{overdueInvoices}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">0</div>
-          <p className="text-xs text-muted-foreground">
-            0 por cobrar, 0 por pagar
+          <p className="text-sm text-muted-foreground">
+            Monto vencido: ${overdueAmount.toLocaleString()}
           </p>
         </CardContent>
       </Card>

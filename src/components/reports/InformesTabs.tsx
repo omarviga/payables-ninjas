@@ -1,66 +1,52 @@
-import { useState, Suspense, lazy } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, PieChart, LineChart, LayoutList, Receipt, Loader2 } from 'lucide-react';
-import { ChartsTabContent } from './tabs/ChartsTabContent';
-import { MetricsTabContent } from './tabs/MetricsTabContent';
-import { CategoriesTabContent } from './tabs/CategoriesTabContent';
-import { DetailsTabContent } from './tabs/DetailsTabContent';
-import { TaxesTabContent } from './tabs/TaxesTabContent';
 
-export function InformesTabs() {
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChartsTabContent } from "./tabs/ChartsTabContent";
+import { DetailsTabContent } from "./tabs/DetailsTabContent";
+import { MetricsTabContent } from "./tabs/MetricsTabContent";
+import { TaxesTabContent } from "./tabs/TaxesTabContent";
+import { CategoriesTabContent } from "./tabs/CategoriesTabContent";
+import type { Invoice } from "@/data/invoices";
+import { DateRange } from "react-day-picker";
+
+interface InformesTabsProps {
+  filteredInvoices: Invoice[];
+  dateRange?: DateRange;
+  invoiceType: string;
+}
+
+export function InformesTabs({ 
+  filteredInvoices, 
+  dateRange, 
+  invoiceType 
+}: InformesTabsProps) {
   return (
     <Tabs defaultValue="charts" className="w-full">
-      <TabsList className="grid grid-cols-5 mb-4 w-full sm:w-auto">
-        <TabsTrigger value="charts" className="flex gap-2 items-center">
-          <BarChart3 className="h-4 w-4" />
-          <span className="hidden sm:inline">Gráficos</span>
-        </TabsTrigger>
-        <TabsTrigger value="metrics" className="flex gap-2 items-center">
-          <LineChart className="h-4 w-4" />
-          <span className="hidden sm:inline">Métricas</span>
-        </TabsTrigger>
-        <TabsTrigger value="categories" className="flex gap-2 items-center">
-          <PieChart className="h-4 w-4" />
-          <span className="hidden sm:inline">Categorías</span>
-        </TabsTrigger>
-        <TabsTrigger value="taxes" className="flex gap-2 items-center">
-          <Receipt className="h-4 w-4" />
-          <span className="hidden sm:inline">Impuestos</span>
-        </TabsTrigger>
-        <TabsTrigger value="details" className="flex gap-2 items-center">
-          <LayoutList className="h-4 w-4" />
-          <span className="hidden sm:inline">Detalles</span>
-        </TabsTrigger>
+      <TabsList className="mb-4">
+        <TabsTrigger value="charts">Gráficos</TabsTrigger>
+        <TabsTrigger value="details">Detalles</TabsTrigger>
+        <TabsTrigger value="metrics">Métricas</TabsTrigger>
+        <TabsTrigger value="taxes">Impuestos</TabsTrigger>
+        <TabsTrigger value="categories">Categorías</TabsTrigger>
       </TabsList>
       
-      <TabsContent value="charts" className="mt-0">
-        <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-          <ChartsTabContent />
-        </Suspense>
+      <TabsContent value="charts">
+        <ChartsTabContent />
       </TabsContent>
       
-      <TabsContent value="metrics" className="mt-0">
-        <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-          <MetricsTabContent />
-        </Suspense>
+      <TabsContent value="details">
+        <DetailsTabContent />
       </TabsContent>
       
-      <TabsContent value="categories" className="mt-0">
-        <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-          <CategoriesTabContent />
-        </Suspense>
+      <TabsContent value="metrics">
+        <MetricsTabContent />
       </TabsContent>
       
-      <TabsContent value="taxes" className="mt-0">
-        <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-          <TaxesTabContent />
-        </Suspense>
+      <TabsContent value="taxes">
+        <TaxesTabContent />
       </TabsContent>
       
-      <TabsContent value="details" className="mt-0">
-        <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-          <DetailsTabContent />
-        </Suspense>
+      <TabsContent value="categories">
+        <CategoriesTabContent />
       </TabsContent>
     </Tabs>
   );
