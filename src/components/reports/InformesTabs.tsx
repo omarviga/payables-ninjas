@@ -8,7 +8,7 @@ import { CategoriesTabContent } from "./tabs/CategoriesTabContent";
 import type { Invoice } from "@/data/invoices";
 import { DateRange } from "react-day-picker";
 
-interface InformesTabsProps {
+export interface InformesTabsProps {
   filteredInvoices: Invoice[];
   dateRange?: DateRange;
   invoiceType: string;

@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface ReportsSummaryProps {
+export interface ReportsSummaryProps {
   totalInvoices: number;
   totalAmount: number;
   paidInvoices: number;
