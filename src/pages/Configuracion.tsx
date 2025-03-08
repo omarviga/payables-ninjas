@@ -1,25 +1,56 @@
-
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
+import { User, Building, CreditCard, Lock, Shield } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+import { SettingsCard } from '@/components/settings/SettingsCard';
+import { PersonalInfoForm } from '@/components/settings/PersonalInfoForm';
+import { NotificationSettings } from '@/components/settings/NotificationSettings';
+import { SessionItem } from '@/components/settings/SessionItem';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { 
-  Bell, 
-  User, 
-  CreditCard, 
-  Lock, 
-  Building, 
-  FileStack,
-  PanelLeft, 
-  Shield, 
-  Mail
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { SettingsToggleItem } from '@/components/settings/SettingsToggleItem';
 
 const Configuracion = () => {
+  const { toast } = useToast();
+  const [activeSessions, setActiveSessions] = useState([
+    { id: '1', device: "Windows 11 • Chrome", location: "Ciudad de México", status: "Activo ahora", isCurrentSession: true },
+    { id: '2', device: "iPhone 14 • Safari", location: "Ciudad de México", status: "Hace 2 días", isCurrentSession: false },
+  ]);
+
+  const handleLogoutSession = useCallback((sessionId: string) => {
+    setActiveSessions(prev => prev.filter(session => session.id !== sessionId));
+    toast({
+      title: "Sesión cerrada",
+      description: "La sesión ha sido cerrada exitosamente.",
+    });
+  }, [toast]);
+
+  const handleSavePersonalInfo = useCallback(async (data: any) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log("Saving personal info:", data);
+  }, []);
+
+  const handlePasswordChange = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    toast({
+      title: "Contraseña actualizada",
+      description: "Tu contraseña ha sido actualizada exitosamente.",
+    });
+  }, [toast]);
+
+  const handle2FAToggle = useCallback((checked: boolean) => {
+    toast({
+      title: checked ? "2FA Activado" : "2FA Desactivado",
+      description: checked 
+        ? "La autenticación de dos factores ha sido activada correctamente." 
+        : "La autenticación de dos factores ha sido desactivada.",
+    });
+  }, [toast]);
+
   return (
     <div className="container mx-auto space-y-6">
       <div className="flex flex-col space-y-2">
@@ -50,260 +81,172 @@ const Configuracion = () => {
         </TabsList>
 
         <TabsContent value="cuenta" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Información Personal</CardTitle>
-              <CardDescription>
-                Actualiza tu información personal y detalles de contacto.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nombre">Nombre</Label>
-                  <Input id="nombre" placeholder="Tu nombre" defaultValue="Carlos Martínez" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="apellido">Apellido</Label>
-                  <Input id="apellido" placeholder="Tu apellido" defaultValue="Rodríguez" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Correo Electrónico</Label>
-                  <Input id="email" type="email" placeholder="tu@email.com" defaultValue="carlos@payablesninjas.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefono">Teléfono</Label>
-                  <Input id="telefono" placeholder="Tu número de teléfono" defaultValue="(+52) 555 123 4567" />
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button className="w-full md:w-auto">Guardar Cambios</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SettingsCard 
+            title="Información Personal"
+            description="Actualiza tu información personal y detalles de contacto."
+          >
+            <PersonalInfoForm 
+              initialData={{
+                nombre: "Carlos Martínez",
+                apellido: "Rodríguez",
+                email: "carlos@payablesninjas.com",
+                telefono: "(+52) 555 123 4567"
+              }}
+              onSave={handleSavePersonalInfo}
+            />
+          </SettingsCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Preferencias de Notificaciones</CardTitle>
-              <CardDescription>
-                Configura cómo y cuándo recibes notificaciones.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Bell className="h-4 w-4" />
-                    <Label htmlFor="notificaciones-email">Notificaciones por Email</Label>
-                  </div>
-                  <Switch id="notificaciones-email" defaultChecked />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <FileStack className="h-4 w-4" />
-                    <Label htmlFor="resumen-semanal">Resumen Semanal</Label>
-                  </div>
-                  <Switch id="resumen-semanal" defaultChecked />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <CreditCard className="h-4 w-4" />
-                    <Label htmlFor="alertas-pago">Alertas de Pagos</Label>
-                  </div>
-                  <Switch id="alertas-pago" defaultChecked />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <SettingsCard 
+            title="Preferencias de Notificaciones"
+            description="Configura cómo y cuándo recibes notificaciones."
+          >
+            <NotificationSettings />
+          </SettingsCard>
         </TabsContent>
 
         <TabsContent value="empresa" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Información de la Empresa</CardTitle>
-              <CardDescription>
-                Actualiza los datos fiscales y de contacto de tu empresa.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="razon-social">Razón Social</Label>
-                  <Input id="razon-social" placeholder="Razón social" defaultValue="Payables Ninjas S.A. de C.V." />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="rfc">RFC</Label>
-                  <Input id="rfc" placeholder="RFC" defaultValue="PNI230517HT5" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="direccion">Dirección Fiscal</Label>
-                  <Input id="direccion" placeholder="Dirección" defaultValue="Av. Reforma 123, CDMX" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="codigo-postal">Código Postal</Label>
-                  <Input id="codigo-postal" placeholder="CP" defaultValue="06500" />
-                </div>
+          <SettingsCard 
+            title="Información de la Empresa"
+            description="Actualiza los datos fiscales y de contacto de tu empresa."
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="razon-social">Razón Social</Label>
+                <Input id="razon-social" placeholder="Razón social" defaultValue="Payables Ninjas S.A. de C.V." />
               </div>
-              <div className="flex justify-end">
-                <Button className="w-full md:w-auto">Guardar Cambios</Button>
+              <div className="space-y-2">
+                <Label htmlFor="rfc">RFC</Label>
+                <Input id="rfc" placeholder="RFC" defaultValue="PNI230517HT5" />
               </div>
-            </CardContent>
-          </Card>
+              <div className="space-y-2">
+                <Label htmlFor="direccion">Dirección Fiscal</Label>
+                <Input id="direccion" placeholder="Dirección" defaultValue="Av. Reforma 123, CDMX" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="codigo-postal">Código Postal</Label>
+                <Input id="codigo-postal" placeholder="CP" defaultValue="06500" />
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button className="w-full md:w-auto">Guardar Cambios</Button>
+            </div>
+          </SettingsCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Configuración de Facturación</CardTitle>
-              <CardDescription>
-                Configura las opciones para la generación automática de facturas.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <FileStack className="h-4 w-4" />
-                    <Label htmlFor="facturacion-automatica">Facturación Automática</Label>
-                  </div>
-                  <Switch id="facturacion-automatica" />
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Mail className="h-4 w-4" />
-                    <Label htmlFor="envio-automatico">Envío Automático de Facturas</Label>
-                  </div>
-                  <Switch id="envio-automatico" defaultChecked />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <SettingsCard 
+            title="Configuración de Facturación"
+            description="Configura las opciones para la generación automática de facturas."
+          >
+            <div className="space-y-4">
+              <SettingsToggleItem 
+                id="facturacion-automatica" 
+                label="Facturación Automática" 
+              />
+              <SettingsToggleItem 
+                id="envio-automatico" 
+                label="Envío Automático de Facturas" 
+                defaultChecked={true}
+              />
+            </div>
+          </SettingsCard>
         </TabsContent>
 
         <TabsContent value="facturacion" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Métodos de Pago</CardTitle>
-              <CardDescription>
-                Administra tus métodos de pago para servicios premium.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-md border border-border p-4 flex justify-between items-center">
-                <div className="flex items-center space-x-4">
-                  <CreditCard className="h-6 w-6" />
-                  <div>
-                    <p className="font-medium">Visa terminada en 4242</p>
-                    <p className="text-sm text-muted-foreground">Expira: 12/25</p>
-                  </div>
+          <SettingsCard 
+            title="Métodos de Pago"
+            description="Administra tus métodos de pago para servicios premium."
+          >
+            <div className="rounded-md border border-border p-4 flex justify-between items-center">
+              <div className="flex items-center space-x-4">
+                <CreditCard className="h-6 w-6" />
+                <div>
+                  <p className="font-medium">Visa terminada en 4242</p>
+                  <p className="text-sm text-muted-foreground">Expira: 12/25</p>
                 </div>
-                <Button variant="outline" size="sm">Editar</Button>
               </div>
-              
-              <div className="flex justify-end">
-                <Button variant="outline" className="w-full md:w-auto">
-                  Agregar Método de Pago
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              <Button variant="outline" size="sm">Editar</Button>
+            </div>
+            
+            <div className="flex justify-end">
+              <Button variant="outline" className="w-full md:w-auto">
+                Agregar Método de Pago
+              </Button>
+            </div>
+          </SettingsCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Plan de Suscripción</CardTitle>
-              <CardDescription>
-                Información sobre tu plan actual y opciones de actualización.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-md bg-secondary p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-semibold">Plan Empresarial</h3>
-                    <p className="text-sm text-muted-foreground">$299 MXN / mes</p>
-                  </div>
-                  <Button variant="secondary">Cambiar Plan</Button>
+          <SettingsCard 
+            title="Plan de Suscripción"
+            description="Información sobre tu plan actual y opciones de actualización."
+          >
+            <div className="rounded-md bg-secondary p-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="font-semibold">Plan Empresarial</h3>
+                  <p className="text-sm text-muted-foreground">$299 MXN / mes</p>
                 </div>
+                <Button variant="secondary">Cambiar Plan</Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </SettingsCard>
         </TabsContent>
 
         <TabsContent value="seguridad" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Cambiar Contraseña</CardTitle>
-              <CardDescription>
-                Actualiza tu contraseña para mantener tu cuenta segura.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="current-password">Contraseña Actual</Label>
-                  <Input id="current-password" type="password" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-password">Nueva Contraseña</Label>
-                  <Input id="new-password" type="password" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirmar Nueva Contraseña</Label>
-                  <Input id="confirm-password" type="password" />
-                </div>
-                <div className="flex justify-end">
-                  <Button className="w-full md:w-auto">Actualizar Contraseña</Button>
-                </div>
+          <SettingsCard 
+            title="Cambiar Contraseña"
+            description="Actualiza tu contraseña para mantener tu cuenta segura."
+          >
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="current-password">Contraseña Actual</Label>
+                <Input id="current-password" type="password" required />
               </div>
-            </CardContent>
-          </Card>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">Nueva Contraseña</Label>
+                <Input id="new-password" type="password" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirmar Nueva Contraseña</Label>
+                <Input id="confirm-password" type="password" required />
+              </div>
+              <div className="flex justify-end">
+                <Button type="submit" className="w-full md:w-auto">Actualizar Contraseña</Button>
+              </div>
+            </form>
+          </SettingsCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Autenticación de Dos Factores</CardTitle>
-              <CardDescription>
-                Añade una capa adicional de seguridad a tu cuenta.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-4 w-4" />
-                  <Label htmlFor="2fa">Activar Autenticación de Dos Factores</Label>
-                </div>
-                <Switch id="2fa" />
-              </div>
+          <SettingsCard 
+            title="Autenticación de Dos Factores"
+            description="Añade una capa adicional de seguridad a tu cuenta."
+          >
+            <div className="space-y-4">
+              <SettingsToggleItem 
+                id="2fa" 
+                label="Activar Autenticación de Dos Factores" 
+                icon={Shield}
+                onChange={handle2FAToggle}
+              />
               <p className="text-sm text-muted-foreground">
                 La autenticación de dos factores añade una capa adicional de seguridad a tu cuenta al requerir un código además de tu contraseña.
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </SettingsCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Sesiones Activas</CardTitle>
-              <CardDescription>
-                Administra las sesiones donde tu cuenta está conectada.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-md border border-border p-4 flex justify-between items-center">
-                <div>
-                  <p className="font-medium">Windows 11 • Chrome</p>
-                  <p className="text-sm text-muted-foreground">Ciudad de México • Activo ahora</p>
-                </div>
-                <p className="text-sm text-green-500 font-medium">Actual</p>
-              </div>
-              <div className="rounded-md border border-border p-4 flex justify-between items-center">
-                <div>
-                  <p className="font-medium">iPhone 14 • Safari</p>
-                  <p className="text-sm text-muted-foreground">Ciudad de México • Hace 2 días</p>
-                </div>
-                <Button variant="outline" size="sm">Cerrar Sesión</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SettingsCard 
+            title="Sesiones Activas"
+            description="Administra las sesiones donde tu cuenta está conectada."
+          >
+            <div className="space-y-4">
+              {activeSessions.map(session => (
+                <SessionItem 
+                  key={session.id}
+                  device={session.device}
+                  location={session.location}
+                  status={session.status}
+                  isCurrentSession={session.isCurrentSession}
+                  onLogout={session.isCurrentSession ? undefined : () => handleLogoutSession(session.id)}
+                />
+              ))}
+            </div>
+          </SettingsCard>
         </TabsContent>
       </Tabs>
     </div>
