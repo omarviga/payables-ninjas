@@ -11,7 +11,7 @@ interface FacturasFilterBarProps {
   onResetFilter: () => void;
   onExport: () => void;
   onDateRangeChange?: (range: DateRange | undefined) => void;
-  onDownloadFromSAT?: () => void; // Nueva prop para descargar del SAT
+  onDownloadFromSAT?: () => void; 
 }
 
 export function FacturasFilterBar({ 
