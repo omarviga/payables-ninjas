@@ -1,69 +1,90 @@
-# Welcome to your Lovable project
 
-## Project info
+# Sistema de Gestión Empresarial
 
-**URL**: https://lovable.dev/projects/dc4f354c-3ce8-487e-ac39-31910cc6ea5a
+## Descripción
 
-## How can I edit this code?
+Este sistema ofrece una solución integral para la gestión empresarial, permitiendo administrar contactos, facturas, pagos y generar informes financieros. La aplicación incluye un dashboard interactivo y herramientas de pruebas de QA integradas.
 
-There are several ways of editing your application.
+## Características principales
 
-**Use Lovable**
+- **Dashboard financiero**: Visualización de métricas clave, gráficos de flujo financiero y actividades recientes
+- **Gestión de contactos**: Clientes, proveedores y empleados
+- **Facturación**: Carga, procesamiento y seguimiento de facturas
+- **Pagos**: Registro y monitoreo de pagos entrantes y salientes
+- **Conciliación bancaria**: Herramientas para conciliar transacciones
+- **Informes financieros**: Reportes detallados y visualizaciones por categorías
+- **Pruebas de QA integradas**: Sistema de verificación de funcionalidades
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/dc4f354c-3ce8-487e-ac39-31910cc6ea5a) and start prompting.
+## Instalación
 
-Changes made via Lovable will be committed automatically to this repo.
+```bash
+# Clonar el repositorio
+git clone <URL_DEL_REPOSITORIO>
 
-**Use your preferred IDE**
+# Navegar al directorio del proyecto
+cd <NOMBRE_DEL_PROYECTO>
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+# Instalar dependencias
+npm install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Iniciar el servidor de desarrollo
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Estructura del proyecto
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+La aplicación está organizada en módulos funcionales:
 
-**Use GitHub Codespaces**
+- `/src/components`: Componentes reutilizables organizados por área funcional
+- `/src/pages`: Páginas principales de la aplicación
+- `/src/hooks`: Hooks personalizados para lógica de negocio
+- `/src/data`: Modelos de datos y datos de ejemplo
+- `/src/utils`: Utilidades y funciones auxiliares
+- `/src/services`: Servicios para operaciones externas
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Pruebas de QA
 
-## What technologies are used for this project?
+El sistema incluye un módulo de pruebas de QA integrado que permite verificar el funcionamiento de funcionalidades clave:
 
-This project is built with .
+1. Navegue al Dashboard principal
+2. Localice el panel "Pruebas de QA" en la parte inferior
+3. Haga clic en "Ejecutar Pruebas" para iniciar la verificación
+4. Los resultados se mostrarán en tiempo real, indicando:
+   - Carga de contactos
+   - Filtrado de contactos
+   - Agregar contactos
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Tecnologías utilizadas
 
-## How can I deploy this project?
+- React + TypeScript
+- Vite para desarrollo rápido
+- Tailwind CSS para estilos
+- shadcn/ui para componentes de interfaz
+- Recharts para visualizaciones de datos
+- React Query para gestión de estado y peticiones
 
-Simply open [Lovable](https://lovable.dev/projects/dc4f354c-3ce8-487e-ac39-31910cc6ea5a) and click on Share -> Publish.
+## Desarrollo
 
-## I want to use a custom domain - is that possible?
+Para añadir nuevas funcionalidades o modificar las existentes:
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+1. Cree componentes en archivos separados y enfocados
+2. Utilice los hooks existentes para lógica de negocio reutilizable
+3. Siga las convenciones de TypeScript para mantener un código tipado
+4. Implemente pruebas para las nuevas funcionalidades
+
+## Despliegue
+
+Para desplegar la aplicación:
+
+1. Genere la build de producción:
+   ```bash
+   npm run build
+   ```
+
+2. Los archivos generados estarán en el directorio `/dist`
+
+3. Despliegue estos archivos en su servidor web o plataforma de hosting preferida
+
+## Licencia
+
+[MIT](LICENSE)
