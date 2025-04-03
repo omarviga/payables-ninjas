@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { FileText, Settings } from "lucide-react";
 import { SatDownloadForm } from './SatDownloadForm';
-import { SatAuthConfigForm } from './SatAuthConfigForm';
+import { SATLoginModal } from './SATLoginModal';
+import { useToast } from "@/hooks/use-toast";
 
 interface SatDownloadTabProps {
   onConfigureConnection: () => void;
@@ -11,28 +12,52 @@ interface SatDownloadTabProps {
 }
 
 export function SatDownloadTab({ onConfigureConnection, onNavigateToInvoices = () => {} }: SatDownloadTabProps) {
+  const { toast } = useToast();
   const [isConfigured, setIsConfigured] = useState<boolean>(false);
-  const [showAuthConfig, setShowAuthConfig] = useState<boolean>(false);
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   
   // Verificamos si hay credenciales guardadas al montar el componente
   useEffect(() => {
-    const hasSatConfig = localStorage.getItem('satCredentials');
-    setIsConfigured(!!hasSatConfig);
+    const hasSatCredentials = localStorage.getItem('satCredentials');
+    setIsConfigured(!!hasSatCredentials);
   }, []);
   
   const handleConfigureSat = () => {
-    // Mostramos el formulario de configuración
-    setShowAuthConfig(true);
+    // Mostramos el modal de login
+    setShowLoginModal(true);
     onConfigureConnection();
   };
   
-  const handleAuthSuccess = () => {
-    setShowAuthConfig(false);
-    setIsConfigured(true);
+  const handleLoginClose = () => {
+    setShowLoginModal(false);
   };
   
-  const handleAuthCancel = () => {
-    setShowAuthConfig(false);
+  const handleSatLogin = async (username: string, password: string): Promise<boolean> => {
+    try {
+      // En un caso real, aquí se realizaría la validación con un backend
+      // Para este demo, simularemos una validación exitosa
+      console.log("Credenciales para SAT:", { username, password });
+      
+      // Guardar credenciales en localStorage (en un caso real usaríamos métodos más seguros)
+      const credentials = {
+        rfc: username,
+        token: "JWT_SIMULATED_TOKEN_" + Date.now(), // En un caso real sería un JWT del backend
+        expiresAt: Date.now() + 3600000 // 1 hora de expiración
+      };
+      
+      localStorage.setItem('satCredentials', JSON.stringify(credentials));
+      setIsConfigured(true);
+      
+      return true;
+    } catch (error) {
+      console.error("Error en login SAT:", error);
+      toast({
+        title: "Error de autenticación",
+        description: "No se pudieron validar las credenciales con el SAT",
+        variant: "destructive"
+      });
+      return false;
+    }
   };
   
   if (!isConfigured) {
@@ -48,14 +73,14 @@ export function SatDownloadTab({ onConfigureConnection, onNavigateToInvoices = (
           onClick={handleConfigureSat}
         >
           <Settings className="mr-2 h-4 w-4" />
-          Configurar Conexión SAT
+          Configurar Acceso SAT
         </Button>
         
-        {/* Formulario de autenticación del SAT */}
-        <SatAuthConfigForm 
-          open={showAuthConfig}
-          onSuccess={handleAuthSuccess}
-          onCancel={handleAuthCancel}
+        {/* Modal de login del SAT */}
+        <SATLoginModal 
+          open={showLoginModal}
+          onClose={handleLoginClose}
+          onLogin={handleSatLogin}
         />
       </div>
     );
@@ -74,11 +99,11 @@ export function SatDownloadTab({ onConfigureConnection, onNavigateToInvoices = (
           Reconfigurar
         </Button>
         
-        {/* Formulario de autenticación del SAT */}
-        <SatAuthConfigForm 
-          open={showAuthConfig}
-          onSuccess={handleAuthSuccess}
-          onCancel={handleAuthCancel}
+        {/* Modal de login del SAT */}
+        <SATLoginModal 
+          open={showLoginModal}
+          onClose={handleLoginClose}
+          onLogin={handleSatLogin}
         />
       </div>
       

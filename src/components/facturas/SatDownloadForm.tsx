@@ -74,12 +74,12 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
   const simulateDownloadSteps = async () => {
     const steps = [
       { progress: 10, status: "Autenticando con el SAT...", delay: 500 },
-      { progress: 20, status: "Buscando facturas disponibles...", delay: 800 },
-      { progress: 30, status: "Encontradas 12 facturas para descargar", delay: 500 },
-      { progress: 40, status: "Descargando facturas emitidas...", delay: 700 },
-      { progress: 60, status: "Descargando complementos de pago...", delay: 800 },
-      { progress: 80, status: "Procesando documentos XML...", delay: 600 },
-      { progress: 90, status: "Validando documentos fiscales...", delay: 500 },
+      { progress: 20, status: "Validando sesión JWT...", delay: 400 },
+      { progress: 30, status: "Buscando facturas disponibles...", delay: 800 },
+      { progress: 40, status: "Encontradas 12 facturas para descargar", delay: 500 },
+      { progress: 50, status: "Descargando facturas emitidas...", delay: 700 },
+      { progress: 70, status: "Descargando complementos de pago...", delay: 800 },
+      { progress: 85, status: "Procesando documentos XML...", delay: 600 },
       { progress: 95, status: "Guardando en su base de datos...", delay: 600 }
     ];
 

@@ -123,14 +123,23 @@ const Facturas = () => {
     navigate('/cargar-facturas');
   }, [navigate]);
 
-  // Nueva función para manejar la descarga desde el SAT
+  // Función para manejar la descarga desde el SAT (actualizada para usar el nuevo sistema de autenticación)
   const handleDownloadFromSAT = useCallback(async () => {
-    // En un caso real, estos valores vendrían de la configuración o input del usuario
-    const certPem = 'MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIAgEAAoIBAQ...'; 
-    const keyPem = 'MIIE6TAbBgkqhkiG9w0BBQMwDgQIAgEAAoIBAQA...';  
     const requestId = 'REQ-' + Date.now();
+    
+    // Verificar si ya hay credenciales guardadas
+    const satCredentialsStr = localStorage.getItem('satCredentials');
+    if (!satCredentialsStr) {
+      // Si no hay credenciales, redirigir a la página de configuración
+      toast({
+        title: "Configuración requerida",
+        description: "Necesitas configurar tus credenciales del SAT primero.",
+      });
+      navigate('/cargar-facturas');
+      return;
+    }
 
-    const result = await downloadInvoicesFromSAT(certPem, keyPem, requestId);
+    const result = await downloadInvoicesFromSAT(requestId);
     
     if (!result.success) {
       toast({
@@ -139,7 +148,7 @@ const Facturas = () => {
         variant: "destructive"
       });
     }
-  }, [downloadInvoicesFromSAT, toast]);
+  }, [downloadInvoicesFromSAT, toast, navigate]);
 
   const showContent = !isLoading && !error && allInvoices.length > 0;
 

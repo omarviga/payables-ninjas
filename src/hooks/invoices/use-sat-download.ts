@@ -10,31 +10,46 @@ export const useSATDownload = (
 ) => {
   const { toast } = useToast();
 
-  // Nueva función para descargar facturas directamente del SAT
-  const downloadInvoicesFromSAT = useCallback(async (
-    certPem: string, 
-    keyPem: string, 
-    requestId: string
-  ): Promise<SATDownloadResult> => {
-    if (!certPem || !keyPem) {
+  // Nueva función para descargar facturas directamente del SAT usando autenticación por contraseña
+  const downloadInvoicesFromSAT = useCallback(async (requestId: string): Promise<SATDownloadResult> => {
+    // Obtener las credenciales del localStorage
+    const satCredentialsStr = localStorage.getItem('satCredentials');
+    if (!satCredentialsStr) {
       toast({
         title: "Error de configuración",
-        description: "Falta el certificado o la clave privada para conectar con el SAT",
+        description: "No hay credenciales configuradas para el SAT",
         variant: "destructive"
       });
-      return { success: false, error: "Configuración incompleta" };
+      return { success: false, error: "Credenciales no configuradas" };
     }
 
     try {
+      const satCredentials = JSON.parse(satCredentialsStr);
+      
+      // Verificar si el token ha expirado
+      if (satCredentials.expiresAt && Date.now() > satCredentials.expiresAt) {
+        toast({
+          title: "Sesión expirada",
+          description: "Tu sesión del SAT ha expirado. Por favor, inicia sesión nuevamente.",
+          variant: "destructive"
+        });
+        localStorage.removeItem('satCredentials');
+        return { success: false, error: "Sesión expirada" };
+      }
+
       setIsLoading(true);
       toast({
         title: "Descargando facturas",
         description: "Iniciando descarga de facturas desde el SAT...",
       });
 
-      // Aquí iría la lógica real para conectar con el SAT y descargar facturas
+      // Aquí iría la lógica real para conectar con el SAT y descargar facturas usando el token JWT
       // Este es un simulador para demostración
-      console.log("Descargando facturas del SAT con:", { certPem: certPem.substring(0, 10) + "...", keyPem: keyPem.substring(0, 10) + "...", requestId });
+      console.log("Descargando facturas del SAT con:", { 
+        rfc: satCredentials.rfc,
+        token: satCredentials.token.substring(0, 15) + "...",
+        requestId 
+      });
       
       // Simular un tiempo de espera para la descarga
       await new Promise(resolve => setTimeout(resolve, 2000));
