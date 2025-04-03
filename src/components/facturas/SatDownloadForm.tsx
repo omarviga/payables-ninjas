@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +17,7 @@ interface SatDownloadFormProps {
 
 export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) {
   const { toast } = useToast();
-  const { downloadInvoicesFromSAT } = useInvoices();
+  const { downloadInvoicesFromSAT, loadInvoices } = useInvoices();
   const [loading, setLoading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadStatus, setDownloadStatus] = useState("");
@@ -64,6 +65,9 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
       if (result.success) {
         await simulateProgressUpdate(80, "Procesando facturas descargadas...");
         await simulateProgressUpdate(100, "¡Descarga completada!");
+        
+        // Reload the invoices to ensure the UI displays the downloaded ones
+        await loadInvoices();
         
         toast({
           title: "Descarga exitosa",

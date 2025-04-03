@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { FacturasHeader } from '@/components/facturas/FacturasHeader';
 import { FacturasFilterBar } from '@/components/facturas/FacturasFilterBar';
@@ -26,6 +26,12 @@ const Facturas = () => {
     filterInvoices,
     downloadInvoicesFromSAT
   } = useInvoices();
+
+  // Force refresh invoices when component mounts
+  useEffect(() => {
+    console.log("Facturas component mounted, loading invoices...");
+    loadInvoices();
+  }, [loadInvoices]);
 
   console.log("Renderizando página Facturas");
 
@@ -76,6 +82,8 @@ const Facturas = () => {
         title: "Factura eliminada",
         description: "La factura ha sido eliminada exitosamente.",
       });
+      // Refresh the invoice list after deletion
+      loadInvoices();
     } else {
       toast({
         title: "Error al eliminar factura",
@@ -83,7 +91,7 @@ const Facturas = () => {
         variant: "destructive"
       });
     }
-  }, [deleteInvoice, toast]);
+  }, [deleteInvoice, loadInvoices, toast]);
 
   const handleViewInvoice = useCallback((invoiceId: string) => {
     const invoice = allInvoices.find(inv => inv?.id === invoiceId);
@@ -149,8 +157,11 @@ const Facturas = () => {
         description: result.error || "No se pudieron descargar las facturas del SAT. Verifica tu configuración.",
         variant: "destructive"
       });
+    } else {
+      // If successful, refresh the invoices
+      loadInvoices();
     }
-  }, [downloadInvoicesFromSAT, toast, navigate]);
+  }, [downloadInvoicesFromSAT, loadInvoices, toast, navigate]);
 
   const showContent = !isLoading && !error && allInvoices.length > 0;
 
