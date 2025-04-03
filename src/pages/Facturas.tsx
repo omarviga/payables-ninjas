@@ -139,6 +139,7 @@ const Facturas = () => {
       return;
     }
 
+    // Fixed: This function call now correctly passes the requestId as expected by the hook
     const result = await downloadInvoicesFromSAT(requestId);
     
     if (!result.success) {
