@@ -29,5 +29,5 @@ export interface UseInvoicesReturn {
   markInvoiceAsPaid: (invoiceId: string) => Promise<InvoiceStatusResult>;
   deleteInvoice: (invoiceId: string) => Promise<InvoiceStatusResult>;
   filterInvoices: (searchQuery: string) => InvoiceFilterResult | undefined;
-  downloadInvoicesFromSAT: (certPem: string, keyPem: string, requestId: string) => Promise<SATDownloadResult>;
+  downloadInvoicesFromSAT: (requestId: string) => Promise<SATDownloadResult>;
 }

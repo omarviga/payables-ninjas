@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invoice } from '@/data/invoices';
@@ -10,9 +9,7 @@ export const useSATDownload = (
 ) => {
   const { toast } = useToast();
 
-  // Nueva función para descargar facturas directamente del SAT usando autenticación por contraseña
   const downloadInvoicesFromSAT = useCallback(async (requestId: string): Promise<SATDownloadResult> => {
-    // Obtener las credenciales del localStorage
     const satCredentialsStr = localStorage.getItem('satCredentials');
     if (!satCredentialsStr) {
       toast({
@@ -26,7 +23,6 @@ export const useSATDownload = (
     try {
       const satCredentials = JSON.parse(satCredentialsStr);
       
-      // Verificar si el token ha expirado
       if (satCredentials.expiresAt && Date.now() > satCredentials.expiresAt) {
         toast({
           title: "Sesión expirada",
@@ -43,18 +39,14 @@ export const useSATDownload = (
         description: "Iniciando descarga de facturas desde el SAT...",
       });
 
-      // Aquí iría la lógica real para conectar con el SAT y descargar facturas usando el token JWT
-      // Este es un simulador para demostración
       console.log("Descargando facturas del SAT con:", { 
         rfc: satCredentials.rfc,
         token: satCredentials.token.substring(0, 15) + "...",
         requestId 
       });
-      
-      // Simular un tiempo de espera para la descarga
+
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simular facturas descargadas del SAT (en un caso real, estas vendrían del servicio del SAT)
+
       const demoInvoices: Invoice[] = [
         {
           id: `sat-${Date.now()}-1`,
@@ -79,8 +71,7 @@ export const useSATDownload = (
           uuid: `uuid-sat-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
         }
       ];
-      
-      // Actualizar la lista local con las nuevas facturas
+
       setAllInvoices(prev => [...prev, ...demoInvoices]);
       
       toast({

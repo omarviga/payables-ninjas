@@ -139,7 +139,8 @@ const Facturas = () => {
       return;
     }
 
-    // Fixed: This function call now correctly passes the requestId as expected by the hook
+    // Fixed: Now correctly calls the function with just the requestId parameter
+    // as specified in our updated type definition
     const result = await downloadInvoicesFromSAT(requestId);
     
     if (!result.success) {
