@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,10 +6,9 @@ import { CalendarIcon, Download, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { useInvoices } from '@/hooks/use-invoices';
 
 interface SatDownloadFormProps {
   onNavigateToInvoices: () => void;
@@ -18,6 +16,7 @@ interface SatDownloadFormProps {
 
 export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) {
   const { toast } = useToast();
+  const { downloadInvoicesFromSAT } = useInvoices();
   const [loading, setLoading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadStatus, setDownloadStatus] = useState("");
@@ -51,43 +50,60 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
       description: "Iniciando descarga de facturas...",
     });
     
-    // Simulación del proceso de descarga con actualizaciones visuales
-    await simulateDownloadSteps();
+    // Generate a request ID
+    const requestId = 'REQ-' + Date.now();
     
-    setLoading(false);
-    setDownloadProgress(100);
-    setDownloadStatus("¡Descarga completada!");
-    
-    toast({
-      title: "Descarga exitosa",
-      description: "Se han descargado 12 facturas del SAT",
-      variant: "default", 
-    });
-    
-    // Redirigir a la sección de facturas
-    setTimeout(() => {
-      onNavigateToInvoices();
-    }, 1500);
-  };
-
-  // Simula los pasos de descarga con actualizaciones de progreso
-  const simulateDownloadSteps = async () => {
-    const steps = [
-      { progress: 10, status: "Autenticando con el SAT...", delay: 500 },
-      { progress: 20, status: "Validando sesión JWT...", delay: 400 },
-      { progress: 30, status: "Buscando facturas disponibles...", delay: 800 },
-      { progress: 40, status: "Encontradas 12 facturas para descargar", delay: 500 },
-      { progress: 50, status: "Descargando facturas emitidas...", delay: 700 },
-      { progress: 70, status: "Descargando complementos de pago...", delay: 800 },
-      { progress: 85, status: "Procesando documentos XML...", delay: 600 },
-      { progress: 95, status: "Guardando en su base de datos...", delay: 600 }
-    ];
-
-    for (const step of steps) {
-      setDownloadProgress(step.progress);
-      setDownloadStatus(step.status);
-      await new Promise(resolve => setTimeout(resolve, step.delay));
+    try {
+      // Update progress indicators
+      await simulateProgressUpdate(30, "Autenticando con el SAT...");
+      await simulateProgressUpdate(50, "Buscando facturas disponibles...");
+      
+      // Perform the actual download
+      const result = await downloadInvoicesFromSAT(requestId);
+      
+      if (result.success) {
+        await simulateProgressUpdate(80, "Procesando facturas descargadas...");
+        await simulateProgressUpdate(100, "¡Descarga completada!");
+        
+        toast({
+          title: "Descarga exitosa",
+          description: `Se han descargado ${result.downloadedCount || 0} facturas del SAT`,
+        });
+        
+        // Redirect to invoices section
+        setTimeout(() => {
+          onNavigateToInvoices();
+        }, 1500);
+      } else {
+        setDownloadProgress(0);
+        setDownloadStatus("Error en la descarga");
+        
+        toast({
+          title: "Error de descarga",
+          description: result.error || "No se pudieron descargar las facturas del SAT",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error al descargar facturas:", error);
+      setDownloadProgress(0);
+      setDownloadStatus("Error en la descarga");
+      
+      toast({
+        title: "Error de descarga",
+        description: "Ocurrió un error al intentar descargar las facturas",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
+  };
+  
+  // Helper function to simulate progress updates
+  const simulateProgressUpdate = async (progress: number, status: string) => {
+    setDownloadProgress(progress);
+    setDownloadStatus(status);
+    await new Promise(resolve => setTimeout(resolve, 400));
   };
 
   return (
