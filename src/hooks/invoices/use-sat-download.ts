@@ -2,6 +2,7 @@
 import { useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invoice } from '@/data/invoices';
+import { addInvoices } from '@/data/invoices';
 
 // Define the SATDownloadResult type inline to avoid import issues
 export interface SATDownloadResult {
@@ -79,6 +80,10 @@ export const useSATDownload = (
         }
       ];
 
+      // Usar addInvoices para asegurar que las facturas se guarden correctamente
+      await addInvoices(demoInvoices);
+      
+      // Actualizar el estado local también
       setAllInvoices(prev => [...prev, ...demoInvoices]);
       
       toast({

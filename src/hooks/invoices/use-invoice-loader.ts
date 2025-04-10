@@ -38,6 +38,7 @@ export const useInvoiceLoader = () => {
     // Recargar las facturas cada vez que se regresa a la página
     const handleVisibilityChange = () => {
       if (!document.hidden) {
+        console.log("Documento visible, recargando facturas...");
         loadInvoices();
       }
     };

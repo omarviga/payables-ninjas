@@ -1,4 +1,3 @@
-
 import { CfdiType } from '@/services/types/cfdiTypes';
 import { fetchInvoices, addInvoicesToDb, updateInvoice, deleteInvoice } from '@/services/supabase/invoiceService';
 
@@ -32,14 +31,51 @@ export const initInvoices = async (): Promise<void> => {
       invoices = dbInvoices;
       console.log("Facturas cargadas desde Supabase:", invoices.length);
     } else {
-      console.log("No se encontraron facturas en Supabase");
-      // No utilizamos facturas de ejemplo - inicializamos con array vacío
-      invoices = [];
+      console.log("No se encontraron facturas en Supabase, usando datos de ejemplo");
+      // Creamos algunas facturas de ejemplo para modo demo
+      invoices = [
+        {
+          id: `demo-${Date.now()}-1`,
+          number: `DEMO-${Math.floor(Math.random() * 10000)}`,
+          client: "EMPRESA DE DEMOSTRACIÓN",
+          amount: 4850.75,
+          date: new Date().toLocaleDateString('es-MX'),
+          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('es-MX'),
+          status: 'pending',
+          type: 'receivable',
+          uuid: `uuid-demo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+        },
+        {
+          id: `demo-${Date.now()}-2`,
+          number: `DEMO-${Math.floor(Math.random() * 10000)}`,
+          client: "PROVEEDOR DE EJEMPLO",
+          amount: 2340.50,
+          date: new Date().toLocaleDateString('es-MX'),
+          dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('es-MX'),
+          status: 'pending',
+          type: 'payable',
+          uuid: `uuid-demo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+        }
+      ];
+      console.log("Facturas de ejemplo creadas:", invoices.length);
     }
   } catch (error) {
     console.error("Error al inicializar facturas:", error);
-    // Inicializamos con array vacío en caso de error
-    invoices = [];
+    // Inicializamos con facturas de ejemplo en caso de error
+    invoices = [
+      {
+        id: `demo-error-${Date.now()}-1`,
+        number: `DEMO-ERR-${Math.floor(Math.random() * 10000)}`,
+        client: "FALLBACK DEMO",
+        amount: 1250.30,
+        date: new Date().toLocaleDateString('es-MX'),
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('es-MX'),
+        status: 'pending',
+        type: 'receivable',
+        uuid: `uuid-demo-error-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      }
+    ];
+    console.log("Facturas de respaldo creadas por error:", invoices.length);
   }
 };
 
