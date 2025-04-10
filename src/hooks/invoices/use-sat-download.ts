@@ -1,7 +1,14 @@
+
 import { useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invoice } from '@/data/invoices';
-import type { SATDownloadResult } from './types';
+
+// Define the SATDownloadResult type inline to avoid import issues
+export interface SATDownloadResult {
+  success: boolean;
+  downloadedCount?: number;
+  error?: string;
+}
 
 export const useSATDownload = (
   setAllInvoices: React.Dispatch<React.SetStateAction<Invoice[]>>,
