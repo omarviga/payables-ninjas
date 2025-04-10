@@ -39,7 +39,7 @@ export const InvoiceTabs = ({
   
   // Garantizar que el componente responda a actualizaciones de datos
   useEffect(() => {
-    console.log("Actualizando datos de facturas:", {
+    console.log("Actualizando datos de InvoiceTabs:", {
       all: safeAllInvoices.length,
       receivable: safeReceiveInvoices.length,
       payable: safePayableInvoices.length,
@@ -48,9 +48,23 @@ export const InvoiceTabs = ({
   }, [safeAllInvoices, safeReceiveInvoices, safePayableInvoices, safeOverdueInvoices]);
   
   const handleTabChange = (value: string) => {
+    console.log("Cambiando pestaña a:", value);
     setActiveTab(value);
     if (onTabChange) onTabChange(value);
   };
+
+  // Si no hay facturas, mostrar mensaje
+  if (safeAllInvoices.length === 0) {
+    console.log("No hay facturas disponibles para mostrar en InvoiceTabs");
+    return (
+      <div className="text-center py-8 border rounded-lg">
+        <p className="text-lg font-medium">No hay facturas disponibles</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Carga nuevas facturas o descarga desde el SAT para comenzar.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <Tabs 

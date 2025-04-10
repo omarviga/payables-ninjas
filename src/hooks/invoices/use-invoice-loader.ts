@@ -33,6 +33,7 @@ export const useInvoiceLoader = () => {
   }, []);
 
   useEffect(() => {
+    console.log("useEffect en useInvoiceLoader - Cargando facturas iniciales");
     loadInvoices();
     
     // Recargar las facturas cada vez que se regresa a la página

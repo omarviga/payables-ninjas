@@ -9,21 +9,31 @@ export const useInvoiceFilters = (
   loadInvoices: () => Promise<void>,
   setAllInvoices: React.Dispatch<React.SetStateAction<Invoice[]>>
 ) => {
+  // Asegurarnos de que allInvoices siempre sea un array
+  const safeInvoices = Array.isArray(allInvoices) ? allInvoices : [];
+  
   // Memorize filtered invoices
   const receivableInvoices = useMemo(() => 
-    allInvoices.filter(inv => inv?.type === 'receivable') || [], 
-    [allInvoices]
+    safeInvoices.filter(inv => inv?.type === 'receivable') || [], 
+    [safeInvoices]
   );
 
   const payableInvoices = useMemo(() => 
-    allInvoices.filter(inv => inv?.type === 'payable') || [], 
-    [allInvoices]
+    safeInvoices.filter(inv => inv?.type === 'payable') || [], 
+    [safeInvoices]
   );
   
   const overdueInvoices = useMemo(() => 
-    allInvoices.filter(inv => inv?.status === 'overdue') || [], 
-    [allInvoices]
+    safeInvoices.filter(inv => inv?.status === 'overdue') || [], 
+    [safeInvoices]
   );
+
+  console.log("Invoices filtradas:", {
+    total: safeInvoices.length,
+    receivable: receivableInvoices.length,
+    payable: payableInvoices.length,
+    overdue: overdueInvoices.length
+  });
 
   // Function to filter invoices
   const filterInvoices = (searchQuery: string): InvoiceFilterResult | undefined => {
@@ -44,6 +54,7 @@ export const useInvoiceFilters = (
       inv?.amount?.toString().includes(searchQuery)
     );
     
+    console.log(`Filtrado completado: ${filtered.length} resultados para "${searchQuery}"`);
     setAllInvoices(filtered);
     return { filteredCount: filtered.length, success: true };
   };
