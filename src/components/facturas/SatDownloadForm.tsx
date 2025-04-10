@@ -3,13 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarIcon, Download, RefreshCw } from "lucide-react";
+import { CalendarIcon, Download, Key, RefreshCw, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { useInvoices } from '@/hooks/use-invoices';
+import { satService } from '@/services/satService';
 
 interface SatDownloadFormProps {
   onNavigateToInvoices: () => void;
@@ -26,22 +27,65 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
     to: new Date()
   });
   const [invoiceType, setInvoiceType] = useState<string>("all");
-  const [connectedRFC, setConnectedRFC] = useState<string>("");
+  const [satCredentials, setSatCredentials] = useState<{
+    rfc: string;
+    authType: string;
+    sessionToken?: string;
+  } | null>(null);
 
-  // Obtener el RFC de las credenciales guardadas
+  // Obtener las credenciales del SAT guardadas
   useEffect(() => {
     const satCredentialsStr = localStorage.getItem('satCredentials');
     if (satCredentialsStr) {
       try {
-        const satCredentials = JSON.parse(satCredentialsStr);
-        setConnectedRFC(satCredentials.rfc);
+        const credentials = JSON.parse(satCredentialsStr);
+        setSatCredentials({
+          rfc: credentials.rfc,
+          authType: credentials.authType || 'password',
+          sessionToken: credentials.sessionToken
+        });
+        
+        // Verificar si la sesión sigue activa
+        if (credentials.sessionToken) {
+          satService.checkSessionStatus(credentials.sessionToken)
+            .then(isActive => {
+              if (!isActive) {
+                toast({
+                  title: "Sesión expirada",
+                  description: "Tu sesión del SAT ha expirado. Por favor, vuelve a autenticarte.",
+                  variant: "destructive"
+                });
+                localStorage.removeItem('satCredentials');
+                setSatCredentials(null);
+              }
+            });
+        }
       } catch (e) {
         console.error("Error parsing SAT credentials:", e);
+        localStorage.removeItem('satCredentials');
       }
     }
-  }, []);
+  }, [toast]);
 
   const handleDownload = async () => {
+    if (!dateRange?.from || !dateRange?.to) {
+      toast({
+        title: "Fecha requerida",
+        description: "Debes seleccionar un rango de fechas para la descarga",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!satCredentials?.sessionToken) {
+      toast({
+        title: "Autenticación requerida",
+        description: "No hay una sesión activa con el SAT. Configura tus credenciales.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
     setDownloadProgress(0);
     setDownloadStatus("Conectando con el SAT...");
@@ -57,13 +101,22 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
     try {
       // Update progress indicators
       await simulateProgressUpdate(30, "Autenticando con el SAT...");
-      await simulateProgressUpdate(50, "Buscando facturas disponibles...");
       
-      // Perform the actual download
-      const result = await downloadInvoicesFromSAT(requestId);
+      // Primero intentamos usar el servicio seguro para la descarga
+      const downloadResult = await satService.downloadInvoices(
+        satCredentials.sessionToken,
+        dateRange.from,
+        dateRange.to,
+        invoiceType
+      );
       
-      if (result.success) {
+      if (downloadResult.success) {
+        await simulateProgressUpdate(50, "Descargando facturas disponibles...");
         await simulateProgressUpdate(80, "Procesando facturas descargadas...");
+        
+        // Si el servicio seguro funcionó, registramos las facturas en el sistema
+        const result = await downloadInvoicesFromSAT(requestId);
+        
         await simulateProgressUpdate(100, "¡Descarga completada!");
         
         // Reload the invoices to ensure the UI displays the downloaded ones
@@ -71,7 +124,7 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
         
         toast({
           title: "Descarga exitosa",
-          description: `Se han descargado ${result.downloadedCount || 0} facturas del SAT`,
+          description: `Se han descargado ${downloadResult.downloadedCount || 0} facturas del SAT`,
         });
         
         // Redirect to invoices section
@@ -84,7 +137,7 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
         
         toast({
           title: "Error de descarga",
-          description: result.error || "No se pudieron descargar las facturas del SAT",
+          description: downloadResult.error || "No se pudieron descargar las facturas del SAT",
           variant: "destructive"
         });
       }
@@ -112,14 +165,24 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
 
   return (
     <div className="space-y-6">
-      {connectedRFC && (
+      {satCredentials && (
         <div className="rounded-md bg-muted p-3 flex items-center space-x-3">
           <div className="h-8 w-8 rounded-full bg-payables-100 flex items-center justify-center">
-            <CalendarIcon className="h-4 w-4 text-payables-600" />
+            {satCredentials.authType === 'fiel' ? (
+              <ShieldCheck className="h-4 w-4 text-payables-600" />
+            ) : (
+              <Key className="h-4 w-4 text-payables-600" />
+            )}
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium">Cuenta conectada: <span className="font-semibold">{connectedRFC}</span></p>
-            <p className="text-xs text-muted-foreground">Autorizado para descarga automática de CFDI</p>
+            <p className="text-sm font-medium">
+              Cuenta conectada: <span className="font-semibold">{satCredentials.rfc}</span>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {satCredentials.authType === 'fiel' 
+                ? 'Autenticado con e.firma (FIEL)' 
+                : 'Autorizado para descarga automática de CFDI'}
+            </p>
           </div>
         </div>
       )}
@@ -165,7 +228,7 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
               <Button 
                 onClick={handleDownload} 
                 className="w-full bg-payables-600 hover:bg-payables-700"
-                disabled={loading}
+                disabled={loading || !satCredentials?.sessionToken}
               >
                 {loading ? (
                   <>
@@ -186,7 +249,11 @@ export function SatDownloadForm({ onNavigateToInvoices }: SatDownloadFormProps) 
       
       <div className="text-center text-sm text-muted-foreground">
         <p>Esta función descarga automáticamente los CFDIs desde el portal del SAT utilizando tus credenciales configuradas.</p>
-        <p className="mt-1">El proceso puede tardar algunos minutos dependiendo del volumen de facturas.</p>
+        <p className="mt-1">
+          {satCredentials?.authType === 'fiel' 
+            ? 'La autenticación con e.firma garantiza la máxima seguridad en la conexión.' 
+            : 'El proceso puede tardar algunos minutos dependiendo del volumen de facturas.'}
+        </p>
       </div>
     </div>
   );
