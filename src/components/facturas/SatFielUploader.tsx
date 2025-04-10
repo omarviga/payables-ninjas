@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,12 +51,16 @@ export function SatFielUploader({ onComplete, onCancel }: SatFielUploaderProps) 
     setUploadProgress(10);
     
     try {
-      // Simulación de progreso
+      // Inicio del proceso
       await new Promise(resolve => setTimeout(resolve, 500));
-      setUploadProgress(40);
+      setUploadProgress(30);
+      
+      // Verificar conexión a Supabase
+      const isSupabaseReady = !!window.localStorage.getItem('supabase.auth.token');
+      console.log("Estado de conexión Supabase:", isSupabaseReady ? "Conectado" : "No conectado");
       
       await new Promise(resolve => setTimeout(resolve, 500));
-      setUploadProgress(70);
+      setUploadProgress(60);
       
       // Llamada al método que proporcionará los archivos al backend
       const success = await onComplete({
@@ -96,7 +101,7 @@ export function SatFielUploader({ onComplete, onCancel }: SatFielUploaderProps) 
         <div className="space-y-1 mb-4">
           <h3 className="text-lg font-semibold">Configurar e.firma (FIEL)</h3>
           <p className="text-sm text-muted-foreground">
-            Sube tus archivos de e.firma para autenticar con el SAT de forma segura.
+            Sube tus archivos de e.firma para autenticar con el SAT de forma segura. Los archivos se almacenarán en Supabase de forma segura.
           </p>
         </div>
         

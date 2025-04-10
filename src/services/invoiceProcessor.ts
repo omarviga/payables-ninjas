@@ -41,6 +41,38 @@ export const checkDuplicateUuid = async (uuid: string): Promise<boolean> => {
   }
 };
 
+// Función para registrar metadata de CFDI en Supabase
+const registerCfdiMetadata = async (metadata: any, storagePath: string, userId: string): Promise<boolean> => {
+  try {
+    if (!metadata || !userId) return false;
+    
+    const { error } = await supabase
+      .from('cfdi_metadata')
+      .insert({
+        user_id: userId,
+        uuid: metadata.uuid,
+        emisor_rfc: metadata.rfcEmisor,
+        emisor_nombre: metadata.nombreEmisor,
+        receptor_rfc: metadata.rfcReceptor,
+        receptor_nombre: metadata.nombreReceptor,
+        fecha_emision: metadata.fechaEmision,
+        total: metadata.total,
+        tipo_cfdi: metadata.tipoComprobante,
+        storage_path: storagePath
+      });
+      
+    if (error) {
+      console.error('Error al registrar metadata de CFDI:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error inesperado al registrar metadata:', error);
+    return false;
+  }
+};
+
 // Función para procesar un archivo XML y extraer datos de factura
 export const processXmlFile = async (file: File): Promise<{invoice: Invoice, isDuplicate: boolean}> => {
   return new Promise(async (resolve) => {
@@ -86,6 +118,11 @@ export const processXmlFile = async (file: File): Promise<{invoice: Invoice, isD
       if (!isDuplicate) {
         const { data: userData } = await supabase.auth.getUser();
         storagePath = await uploadXmlToStorage(file, userData?.user?.id);
+        
+        // Si tenemos un usuario autenticado, registrar la metadata del CFDI
+        if (userData?.user?.id && storagePath) {
+          await registerCfdiMetadata(cfdiMetadata, storagePath, userData.user.id);
+        }
       }
 
       // Crear objeto de factura con los datos extraídos
