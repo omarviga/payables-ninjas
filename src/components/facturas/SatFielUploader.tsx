@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { FileKey, FileCertificate, RefreshCw, ShieldCheck } from "lucide-react";
+import { FileKey, FileText, RefreshCw, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 
@@ -123,7 +122,7 @@ export function SatFielUploader({ onComplete, onCancel }: SatFielUploaderProps) 
           
           <div className="space-y-2">
             <Label htmlFor="cer-file" className="flex items-center">
-              <FileCertificate className="mr-2 h-4 w-4" />
+              <FileText className="mr-2 h-4 w-4" />
               Archivo .cer
             </Label>
             <Input
